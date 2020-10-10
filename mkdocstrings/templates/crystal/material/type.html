@@ -1,0 +1,58 @@
+{{ log.debug() }}
+
+<div class="doc doc-object doc-class">
+  <h{{ heading_level }}
+      id="{{ obj.html_id }}"
+      class="doc doc-heading"
+      data-toc-label="{{ obj.name }}">
+
+    <code>{{obj.full_name}}</code>
+  </h{{ heading_level }}>
+
+  <div class="doc doc-contents {% if root %}first{% endif %}">
+    {% if obj.doc %}{{ obj.doc |convert_markdown }}{% endif %}
+
+    {% with root = False, heading_level = heading_level + 1 %}
+      <div class="doc doc-children">
+        {% if obj.constants %}
+          <h{{ heading_level }}>Constants</h{{ heading_level }}>
+          {% with heading_level = heading_level + 1 %}
+            {% for obj in obj.constants %}
+              {% include "constant.html" with context %}
+            {% endfor %}
+          {% endwith %}
+        {% endif %}
+
+        {% if obj.class_methods or obj.constructors %}
+          <h{{ heading_level }}>Class methods</h{{ heading_level }}>
+          {% with heading_level = heading_level + 1 %}
+            {% for obj in obj.constructors %}
+              {% include "class_method.html" with context %}
+            {% endfor %}
+            {% for obj in obj.class_methods %}
+              {% include "class_method.html" with context %}
+            {% endfor %}
+          {% endwith %}
+        {% endif %}
+
+        {% if obj.instance_methods %}
+          <h{{ heading_level }}>Methods</h{{ heading_level }}>
+          {% with heading_level = heading_level + 1 %}
+            {% for obj in obj.instance_methods %}
+              {% include "instance_method.html" with context %}
+            {% endfor %}
+          {% endwith %}
+        {% endif %}
+
+        {% if obj.macros %}
+          <h{{ heading_level }}>Macros</h{{ heading_level }}>
+          {% with heading_level = heading_level + 1 %}
+            {% for obj in obj.macros %}
+              {% include "macro.html" with context %}
+            {% endfor %}
+          {% endwith %}
+        {% endif %}
+      </div>
+    {% endwith %}
+  </div>
+</div>

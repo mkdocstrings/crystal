@@ -1,0 +1,21 @@
+{{ log.debug() }}
+
+<div class="doc doc-object doc-{{ kind }}">
+  <h{{ heading_level }}
+      id="{{ obj.html_id }}"
+      class="doc doc-heading"
+      data-toc-label="{{sep}}{{ obj.name }}">
+
+    <code class="highlight language-crystal">
+      {{ sep }}{{ obj.name }}<span style="font-weight: normal">{{ obj.args_string.replace('&', '&amp;') |safe }}</span>
+    </code>
+  </h{{ heading_level }}>
+
+  <div class="doc doc-contents {% if root %}first{% endif %}">
+    {% if obj.doc %}{{ obj.doc |convert_markdown }}{% endif %}
+  </div>
+
+  {% if config.show_source and obj.source_link %}
+    [<a href="{{ obj.source_link }}">View source</a>]
+  {% endif %}
+</div>
