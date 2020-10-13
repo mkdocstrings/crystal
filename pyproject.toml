@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "mkdocstrings-crystal"
+version = "0.1.0"
+description = "Crystal language doc generator for mkdocstrings"
+authors = ["Oleh Prypin <oleh@pryp.in>"]
+packages = [
+    { include = "mkdocstrings" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+mkdocstrings = ">0.13.6"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.black]
+line-length = 100
