@@ -55,7 +55,8 @@ class DocConstant(DocObject):
 
 
 class DocMethod(DocObject, metaclass=abc.ABCMeta):
-    METHOD_SEP: str
+    METHOD_SEP: str = ""
+    METHOD_ID_SEP: str
 
     @property
     def rel_id(self):
@@ -65,26 +66,30 @@ class DocMethod(DocObject, metaclass=abc.ABCMeta):
         if self.get("double_splat"):
             args.append("**" + self["double_splat"]["external_name"])
 
-        return self.METHOD_SEP + self["name"] + "(" + ",".join(args) + ")"
+        return self.METHOD_ID_SEP + self["name"] + "(" + ",".join(args) + ")"
 
     @property
     def abs_id(self):
         return (self.parent.abs_id if self.parent else "") + self.rel_id
 
+    @property
+    def short_name(self):
+        return self.METHOD_SEP + self["name"]
+
 
 class DocInstanceMethod(DocMethod):
     JSON_KEY = "instance_methods"
-    METHOD_SEP = "#"
+    METHOD_SEP = METHOD_ID_SEP = "#"
 
 
 class DocClassMethod(DocMethod):
     JSON_KEY = "class_methods"
-    METHOD_SEP = "."
+    METHOD_SEP = METHOD_ID_SEP = "."
 
 
 class DocMacro(DocMethod):
     JSON_KEY = "macros"
-    METHOD_SEP = ":"
+    METHOD_ID_SEP = ":"
 
 
 class DocConstructor(DocClassMethod):
@@ -122,6 +127,15 @@ class CrystalRenderer(BaseRenderer):
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
         self.env.keep_trailing_newline = False
+
+        self.env.globals["deduplicator"] = _Deduplicator
+
+
+class _Deduplicator:
+    def __call__(self, value):
+        if value != getattr(self, "value", object()):
+            self.value = value
+            return value
 
 
 def _object_hook(obj: dict) -> dict:

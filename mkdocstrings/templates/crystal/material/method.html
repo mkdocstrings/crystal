@@ -4,10 +4,10 @@
   <h{{ heading_level }}
       id="{{ obj.abs_id }}"
       class="doc doc-heading"
-      data-toc-label="{{sep}}{{ obj.name }}">
+      data-toc-label="{% if toc_dedup(obj.short_name) %}{{ obj.short_name }}{% endif %}">
 
     <code class="highlight language-crystal">
-      {{ sep }}{{ obj.name }}<span style="font-weight: normal">{{ obj.args_string.replace('&', '&amp;') |safe }}</span>
+      {{ obj.short_name }}<span style="font-weight: normal">{% if obj.args_string.startswith(" ") %} {% endif %}{{ obj.args_string |striptags |highlight(language="crystal", inline=True) }}</span>
     </code>
   </h{{ heading_level }}>
 
