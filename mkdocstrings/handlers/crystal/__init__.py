@@ -6,17 +6,20 @@ import re
 import subprocess
 from typing import Any, Optional, Union
 
+from jinja2.filters import do_mark_safe
 from markdown import Markdown
 
 from mkdocstrings.handlers.base import BaseCollector, BaseHandler, BaseRenderer, CollectionError
 from mkdocstrings.loggers import get_logger
+
+from .xref_extension import XrefExtension
 
 log = get_logger(__name__)
 
 
 class DocObject(collections.UserDict, metaclass=abc.ABCMeta):
     JSON_KEY: str
-    parent: Optional[str]
+    parent: Optional["DocObject"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -66,11 +69,11 @@ class DocMethod(DocObject, metaclass=abc.ABCMeta):
         if self.get("double_splat"):
             args.append("**" + self["double_splat"]["external_name"])
 
-        return self.METHOD_ID_SEP + self["name"] + "(" + ",".join(args) + ")"
+        return self["name"] + "(" + ",".join(args) + ")"
 
     @property
     def abs_id(self):
-        return (self.parent.abs_id if self.parent else "") + self.rel_id
+        return (self.parent.abs_id if self.parent else "") + self.METHOD_ID_SEP + self.rel_id
 
     @property
     def short_name(self):
@@ -123,12 +126,21 @@ class CrystalRenderer(BaseRenderer):
         )
 
     def update_env(self, md: Markdown, config: dict) -> None:
-        super().update_env(md, config)
+        extensions = list(config["mdx"])
+        extensions.append(XrefExtension(self.collector))
+        self.md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
+
+        super().update_env(self.md, config)
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
         self.env.keep_trailing_newline = False
 
+        self.env.filters["convert_markdown"] = self._convert_markdown
         self.env.globals["deduplicator"] = _Deduplicator
+
+    def _convert_markdown(self, text: str, context: DocObject):
+        self.md.treeprocessors["mkdocstrings_crystal_xref"].context = context
+        return do_mark_safe(self.md.convert(text))
 
 
 class _Deduplicator:
@@ -160,33 +172,36 @@ class CrystalCollector(BaseCollector):
                 "--source-refname=master",
             ]
         )
-        self.json = json.loads(outp, object_hook=_object_hook)
+        self.data = json.loads(outp, object_hook=_object_hook)["program"]
 
-    def collect(self, identifier: str, config: dict) -> DocObject:
-        if not identifier.startswith("::"):
-            identifier = "::" + identifier
+    _LOOKUP_ORDER = {
+        "": [DocType, DocConstant, DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro],
+        "::": [DocType, DocConstant],
+        "#": [DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro],
+        ".": [DocClassMethod, DocConstructor, DocInstanceMethod, DocMacro],
+        ":": [DocMacro],
+    }
 
-        obj = self.json["program"]
+    def collect(
+        self, identifier: str, config: dict, *, context: Optional[DocObject] = None
+    ) -> DocObject:
+        if identifier.startswith("::") or context is None:
+            context = self.data
+        obj = context
 
-        path = re.split(r"(\W+)", identifier)
+        path = re.split(r"(::|#|\.|:|^)", identifier)
         for sep, name in zip(path[1::2], path[2::2]):
             try:
-                if sep == "::":
-                    mapp = collections.ChainMap(obj[DocType.JSON_KEY], obj[DocConstant.JSON_KEY])
-                    obj = mapp[name]
-                else:
-                    if sep == ".":
-                        order = [DocClassMethod, DocConstructor, DocInstanceMethod, DocMacro]
-                    elif sep == "#":
-                        order = [DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro]
-                    elif sep == ":":
-                        order = [DocMacro]
-                    else:
-                        raise CollectionError(f"{identifier!r} - unknown separator {sep!r}")
-                    mapp = collections.ChainMap(*(obj[t.JSON_KEY] for t in order))
-                    obj = mapp[sep + name]
+                order = self._LOOKUP_ORDER[sep]
             except KeyError:
-                raise CollectionError(f"{identifier!r} - can't find {name!r}")
+                raise CollectionError(f"{identifier!r} - unknown separator {sep!r}") from None
+            mapp = collections.ChainMap(*(obj[t.JSON_KEY] for t in order if t.JSON_KEY in obj))
+            try:
+                obj = mapp[name]
+            except KeyError:
+                if context is not self.data:
+                    return self.collect(identifier, config, context=context.parent)
+                raise CollectionError(f"{identifier!r} - can't find {name!r}") from None
 
         return obj
 
@@ -198,6 +213,7 @@ class CrystalHandler(BaseHandler):
 def get_handler(
     theme: str, custom_templates: Optional[str] = None, **config: Any
 ) -> CrystalHandler:
-    return CrystalHandler(
-        collector=CrystalCollector(), renderer=CrystalRenderer("crystal", theme, custom_templates),
-    )
+    collector = CrystalCollector()
+    renderer = CrystalRenderer("crystal", theme, custom_templates)
+    renderer.collector = collector
+    return CrystalHandler(collector, renderer)
