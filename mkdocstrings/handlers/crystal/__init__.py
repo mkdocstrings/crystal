@@ -1,10 +1,11 @@
 import abc
 import collections
+import copy
 import enum
 import json
 import re
 import subprocess
-from typing import Any, Optional, Union
+from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Tuple, TypeVar, Union
 
 from jinja2.filters import do_mark_safe
 from markdown import Markdown
@@ -13,6 +14,9 @@ from mkdocstrings.handlers.base import BaseCollector, BaseHandler, BaseRenderer,
 from mkdocstrings.loggers import get_logger
 
 from .xref_extension import XrefExtension
+
+T = TypeVar("T")
+
 
 log = get_logger(__name__)
 
@@ -161,6 +165,11 @@ def _object_hook(obj: dict) -> dict:
 
 
 class CrystalCollector(BaseCollector):
+    default_config: dict = {
+        "nested_types": False,
+        "file_filters": True,
+    }
+
     def __init__(self) -> None:
         outp = subprocess.check_output(
             [
@@ -183,8 +192,10 @@ class CrystalCollector(BaseCollector):
     }
 
     def collect(
-        self, identifier: str, config: dict, *, context: Optional[DocObject] = None
+        self, identifier: str, config: Mapping[str, Any], *, context: Optional[DocObject] = None
     ) -> DocObject:
+        config = collections.ChainMap(config, self.default_config)
+
         if identifier.startswith("::") or context is None:
             context = self.data
         obj = context
@@ -203,7 +214,64 @@ class CrystalCollector(BaseCollector):
                     return self.collect(identifier, config, context=context.parent)
                 raise CollectionError(f"{identifier!r} - can't find {name!r}") from None
 
+        obj = copy.copy(obj)
+        if isinstance(obj, DocType) and not config["nested_types"]:
+            obj[DocType.JSON_KEY] = {}
+        for key in DOC_TYPES:
+            if not obj.get(key):
+                continue
+            obj[key] = self._filter(config["file_filters"], obj[key], self._get_locations)
         return obj
+
+    @classmethod
+    def _get_locations(cls, obj: DocObject) -> Sequence[str]:
+        if isinstance(obj, DocConstant):
+            obj = obj.parent
+            if obj is None:
+                return ()
+        if isinstance(obj, DocType):
+            return [loc["url"].rsplit("#", 1)[0] for loc in obj["locations"]]
+        else:
+            return (obj["source_link"].rsplit("#", 1)[0],)
+
+    @classmethod
+    def _filter(
+        cls,
+        filters: Union[bool, Sequence[str]],
+        mapp: Dict[str, T],
+        getter: Callable[[T], Iterable[str]],
+    ) -> Dict[str, T]:
+        if filters is False:
+            return {}
+        if filters is True:
+            return mapp
+        try:
+            re.compile(filters[0])
+        except (TypeError, IndexError):
+            raise CollectionError(
+                f"Expected a non-empty list of strings as filters, not {filters!r}"
+            )
+
+        return dict(cls._apply_filter(filters, mapp.items(), getter))
+
+    @classmethod
+    def _apply_filter(
+        cls,
+        filters: Sequence[str],
+        items: Iterable[Tuple[str, T]],
+        getter: Callable[[T], Iterable[str]],
+    ) -> Iterable[Tuple[str, T]]:
+        for k, v in items:
+            match = False
+            for filt in filters:
+                filter_kind = True
+                if filt.startswith("!"):
+                    filter_kind = False
+                    filt = filt[1:]
+                if any(re.search(filt, s) for s in getter(v)):
+                    match = filter_kind
+            if match:
+                yield (k, v)
 
 
 class CrystalHandler(BaseHandler):

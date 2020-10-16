@@ -55,4 +55,8 @@
       </div>
     {% endwith %}
   </div>
+
+  {% for obj in obj.types.values() %}
+    {% include "type.html" with context %}
+  {% endfor %}
 </div>
