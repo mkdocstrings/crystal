@@ -7,8 +7,8 @@ import re
 import subprocess
 from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Tuple, TypeVar, Union
 
-from jinja2.filters import do_mark_safe
 from markdown import Markdown
+from markupsafe import Markup
 
 from mkdocstrings.handlers.base import BaseCollector, BaseHandler, BaseRenderer, CollectionError
 from mkdocstrings.loggers import get_logger
@@ -146,7 +146,7 @@ class CrystalRenderer(BaseRenderer):
 
     def _convert_markdown(self, text: str, context: DocObject):
         self.md.treeprocessors["mkdocstrings_crystal_xref"].context = context
-        return do_mark_safe(self.md.convert(text))
+        return Markup(self.md.convert(text))
 
 
 class _Deduplicator:
