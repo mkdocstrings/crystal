@@ -1,7 +1,6 @@
 import abc
 import collections
 import copy
-import enum
 import json
 import re
 import subprocess
@@ -119,12 +118,11 @@ class CrystalRenderer(BaseRenderer):
     }
 
     def render(self, data: DocObject, config: dict) -> str:
-        final_config = dict(self.default_config)
-        final_config.update(config)
+        final_config = collections.ChainMap(config, self.default_config)
 
         template = self.env.get_template(f"{data.JSON_KEY.rstrip('s')}.html")
 
-        heading_level = final_config.pop("heading_level")
+        heading_level = final_config["heading_level"]
 
         return template.render(
             config=final_config, obj=data, heading_level=heading_level, root=True
@@ -172,7 +170,7 @@ class CrystalCollector(BaseCollector):
         "file_filters": True,
     }
 
-    def __init__(self) -> None:
+    def __init__(self):
         outp = subprocess.check_output(
             [
                 "crystal",

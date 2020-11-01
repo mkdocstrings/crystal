@@ -1,10 +1,9 @@
+import xml.etree.ElementTree as etree
 from typing import TYPE_CHECKING
-from xml.etree.ElementTree import Element
 
 from markdown import Markdown
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
-
 from mkdocstrings.handlers.base import CollectionError
 
 if TYPE_CHECKING:
@@ -16,7 +15,7 @@ class RefInsertingTreeprocessor(Treeprocessor):
         super().__init__(md)
         self.collector = collector
 
-    def run(self, root):
+    def run(self, root: etree.Element):
         for i, el in enumerate(root):
             if el.tag != "code":
                 self.run(el)
@@ -28,9 +27,9 @@ class RefInsertingTreeprocessor(Treeprocessor):
                 continue
 
             # Replace the `code` with a new `span` (need to propagate the tail too).
-            root[i] = span = Element("span")
+            root[i] = span = etree.Element("span")
             span.tail = el.tail
-            # Put the old `code` into the `span`, wrap it into special text.
+            # Put the old `code` into the `span`, wrap it into special text for mkdocstrings.
             span.text = "["
             span.append(el)
             el.tail = "][" + ref_obj.abs_id + "]"
