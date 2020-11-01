@@ -13,6 +13,7 @@ from markdown import Markdown
 from mkdocstrings.handlers.base import BaseCollector, BaseHandler, BaseRenderer, CollectionError
 from mkdocstrings.loggers import get_logger
 
+from .escape_html_extension import EscapeHtmlExtension
 from .xref_extension import XrefExtension
 
 T = TypeVar("T")
@@ -131,6 +132,7 @@ class CrystalRenderer(BaseRenderer):
 
     def update_env(self, md: Markdown, config: dict) -> None:
         extensions = list(config["mdx"])
+        extensions.append(EscapeHtmlExtension())
         extensions.append(XrefExtension(self.collector))
         self.md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
 
