@@ -19,27 +19,33 @@ class CrystalRenderer(BaseRenderer):
     default_config: dict = {
         "show_source": True,
         "heading_level": 2,
+        "deduplicate_toc": True,
     }
 
     def render(self, data: DocObject, config: dict) -> str:
-        final_config = collections.ChainMap(config, self.default_config)
+        econfig = collections.ChainMap(config, self.default_config)
 
         template = self.env.get_template(f"{data.JSON_KEY.rstrip('s')}.html")
 
-        heading_level = final_config["heading_level"]
-
         return template.render(
-            config=final_config,
+            config=econfig,
             obj=data,
-            heading_level=heading_level,
+            heading_level=econfig["heading_level"],
             root=True,
         )
 
     def update_env(self, md: Markdown, config: dict) -> None:
+        econfig = collections.ChainMap(self.default_config)
+        try:
+            econfig = econfig.new_child(config["mkdocstrings"]["handlers"]["crystal"]["rendering"])
+        except KeyError:
+            pass
+
         if md != getattr(self, "_prev_md", None):
             self._prev_md = md
 
-            DeduplicateTocExtension().extendMarkdown(md)
+            if econfig["deduplicate_toc"]:
+                DeduplicateTocExtension().extendMarkdown(md)
 
             extensions = list(config["mdx"])
             extensions.append(_EscapeHtmlExtension())
