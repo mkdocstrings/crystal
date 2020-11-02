@@ -4,7 +4,7 @@
   <h{{ heading_level }}
       id="{{ obj.abs_id }}"
       class="doc doc-heading"
-      data-toc-label="{% if toc_dedup(obj.short_name) %}{{ obj.short_name }}{% endif %}">
+      data-toc-label="{{ obj.short_name }}">
 
     <code class="highlight language-crystal">
       {{ obj.short_name }}<span style="font-weight: normal">{% if obj.args_string.startswith(" ") %} {% endif %}{{ obj.args_string |striptags |highlight(language="crystal", inline=True) }}</span>

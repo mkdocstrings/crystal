@@ -1,6 +1,6 @@
 import collections
 import xml.etree.ElementTree as etree
-from typing import TypeVar
+from typing import List, TypeVar
 
 from markdown import Markdown
 from markdown.extensions import Extension
@@ -33,19 +33,18 @@ class CrystalRenderer(BaseRenderer):
             obj=data,
             heading_level=heading_level,
             root=True,
-            toc_dedup=self._toc_dedup,
         )
 
     def update_env(self, md: Markdown, config: dict) -> None:
         if md != getattr(self, "_prev_md", None):
             self._prev_md = md
 
+            DeduplicateTocExtension().extendMarkdown(md)
+
             extensions = list(config["mdx"])
             extensions.append(_EscapeHtmlExtension())
             extensions.append(XrefExtension(self.collector))
             self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
-
-            self._toc_dedup = _Deduplicator()
 
         super().update_env(self._md, config)
         self.env.trim_blocks = True
@@ -57,13 +56,6 @@ class CrystalRenderer(BaseRenderer):
     def _convert_markdown(self, text: str, context: DocObject):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
         return Markup(self._md.convert(text))
-
-
-class _Deduplicator:
-    def __call__(self, value):
-        if value != getattr(self, "value", object()):
-            self.value = value
-            return value
 
 
 class _EscapeHtmlExtension(Extension):
@@ -107,3 +99,32 @@ class _RefInsertingTreeprocessor(Treeprocessor):
             span.text = "["
             span.append(el)
             el.tail = "][" + ref_obj.abs_id + "]"
+
+
+def _deduplicate_toc(toc: List[dict]) -> None:
+    i = 0
+    while i < len(toc):
+        el = toc[i]
+        if el.get("children"):
+            _deduplicate_toc(el["children"])
+        elif i > 0 and el["name"] == toc[i - 1]["name"]:
+            del toc[i]
+            continue
+        i += 1
+
+
+class _TocDeduplicatingTreeprocessor(Treeprocessor):
+    def run(self, root: etree.Element):
+        try:
+            toc = self.md.toc_tokens
+        except AttributeError:
+            return
+        _deduplicate_toc(toc)
+
+
+class DeduplicateTocExtension(Extension):
+    def extendMarkdown(self, md: Markdown) -> None:
+        md.registerExtension(self)
+        md.treeprocessors.register(
+            _TocDeduplicatingTreeprocessor(md), "mkdocstrings_crystal_deduplicate_toc", 4
+        )
