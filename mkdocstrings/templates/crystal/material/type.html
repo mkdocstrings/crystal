@@ -17,7 +17,7 @@
         {% if obj.constants %}
           <h{{ heading_level }}>Constants</h{{ heading_level }}>
           {% with heading_level = heading_level + 1 %}
-            {% for obj in obj.constants.values() %}
+            {% for obj in obj.constants %}
               {% include "constant.html" with context %}
             {% endfor %}
           {% endwith %}
@@ -26,10 +26,10 @@
         {% if obj.class_methods or obj.constructors %}
           <h{{ heading_level }}>Class methods</h{{ heading_level }}>
           {% with heading_level = heading_level + 1 %}
-            {% for obj in obj.constructors.values() %}
+            {% for obj in obj.constructors %}
               {% include "class_method.html" with context %}
             {% endfor %}
-            {% for obj in obj.class_methods.values() %}
+            {% for obj in obj.class_methods %}
               {% include "class_method.html" with context %}
             {% endfor %}
           {% endwith %}
@@ -38,7 +38,7 @@
         {% if obj.instance_methods %}
           <h{{ heading_level }}>Methods</h{{ heading_level }}>
           {% with heading_level = heading_level + 1 %}
-            {% for obj in obj.instance_methods.values() %}
+            {% for obj in obj.instance_methods %}
               {% include "instance_method.html" with context %}
             {% endfor %}
           {% endwith %}
@@ -47,7 +47,7 @@
         {% if obj.macros %}
           <h{{ heading_level }}>Macros</h{{ heading_level }}>
           {% with heading_level = heading_level + 1 %}
-            {% for obj in obj.macros.values() %}
+            {% for obj in obj.macros %}
               {% include "macro.html" with context %}
             {% endfor %}
           {% endwith %}
@@ -56,7 +56,7 @@
     {% endwith %}
   </div>
 
-  {% for obj in obj.types.values() %}
+  {% for obj in obj.types %}
     {% include "type.html" with context %}
   {% endfor %}
 </div>

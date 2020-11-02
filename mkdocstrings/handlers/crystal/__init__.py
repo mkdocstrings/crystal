@@ -4,11 +4,22 @@ import copy
 import json
 import re
 import subprocess
-from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    Iterable,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
 from markdown import Markdown
 from markupsafe import Markup
-
 from mkdocstrings.handlers.base import BaseCollector, BaseHandler, BaseRenderer, CollectionError
 from mkdocstrings.loggers import get_logger
 
@@ -30,8 +41,12 @@ class DocObject(collections.UserDict, metaclass=abc.ABCMeta):
         self.parent = None
         for key, sublist in self.items():
             if key in DOC_TYPES:
-                for subobj in sublist.values():
+                for subobj in sublist:
                     subobj.parent = self
+
+    @property
+    def name(self):
+        return self["name"]
 
     @property
     def rel_id(self):
@@ -43,6 +58,9 @@ class DocObject(collections.UserDict, metaclass=abc.ABCMeta):
 
     def __repr__(self):
         return type(self).__name__ + super().__repr__()
+
+    def __bool__(self):
+        return True
 
 
 class DocType(DocObject):
@@ -73,7 +91,7 @@ class DocMethod(DocObject, metaclass=abc.ABCMeta):
         if self.get("double_splat"):
             args.append("**" + self["double_splat"]["external_name"])
 
-        return self["name"] + "(" + ",".join(args) + ")"
+        return self.name + "(" + ",".join(args) + ")"
 
     @property
     def abs_id(self):
@@ -81,7 +99,7 @@ class DocMethod(DocObject, metaclass=abc.ABCMeta):
 
     @property
     def short_name(self):
-        return self.METHOD_SEP + self["name"]
+        return self.METHOD_SEP + self.name
 
 
 class DocInstanceMethod(DocMethod):
@@ -107,6 +125,8 @@ DOC_TYPES = {
     t.JSON_KEY: t
     for t in [DocType, DocInstanceMethod, DocClassMethod, DocMacro, DocConstructor, DocConstant]
 }
+
+D = TypeVar("D", bound=DocObject)
 
 
 class CrystalRenderer(BaseRenderer):
@@ -162,13 +182,31 @@ class _Deduplicator:
             return value
 
 
-def _object_hook(obj: dict) -> dict:
+class _DocMapping(Generic[D]):
+    def __init__(self, items: Sequence[D]):
+        self.items = items
+        self.search = search = {}
+        for item in self.items:
+            search.setdefault(item.rel_id, item)
+            search.setdefault(item.name, item)
+
+    def __iter__(self) -> Iterator[D]:
+        return iter(self.items)
+
+    def __len__(self) -> int:
+        return len(self.items)
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.search
+
+    def __getitem__(self, key: str) -> D:
+        return self.search[key]
+
+
+def _object_hook(obj: MutableMapping[str, T]) -> MutableMapping[str, Union[DocObject, T]]:
     for key, sublist in obj.items():
         if key in DOC_TYPES:
-            obj[key] = newsublist = {}
-            for subobj in sublist:
-                newsubobj = DOC_TYPES[key](subobj)
-                newsublist[newsubobj.rel_id] = newsubobj
+            obj[key] = _DocMapping(list(map(DOC_TYPES[key], obj[key])))
     return obj
 
 
@@ -189,7 +227,7 @@ class CrystalCollector(BaseCollector):
                 "--source-refname=master",
             ]
         )
-        self.data = json.loads(outp, object_hook=_object_hook)["program"]
+        self.root = json.loads(outp, object_hook=_object_hook)["program"]
 
     _LOOKUP_ORDER = {
         "": [DocType, DocConstant, DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro],
@@ -204,8 +242,8 @@ class CrystalCollector(BaseCollector):
     ) -> DocObject:
         config = collections.ChainMap(config, self.default_config)
 
-        if identifier.startswith("::") or context is None:
-            context = self.data
+        if identifier.startswith("::") or not context:
+            context = self.root
         obj = context
 
         path = re.split(r"(::|#|\.|:|^)", identifier)
@@ -215,12 +253,11 @@ class CrystalCollector(BaseCollector):
             except KeyError:
                 raise CollectionError(f"{identifier!r} - unknown separator {sep!r}") from None
             mapp = collections.ChainMap(*(obj[t.JSON_KEY] for t in order if t.JSON_KEY in obj))
-            try:
-                obj = mapp[name]
-            except KeyError:
-                if context is not self.data:
+            obj = mapp.get(name.replace(" ", "")) or mapp.get(name.split("(", 1)[0])
+            if not obj:
+                if context is not self.root:
                     return self.collect(identifier, config, context=context.parent)
-                raise CollectionError(f"{identifier!r} - can't find {name!r}") from None
+                raise CollectionError(f"{identifier!r} - can't find {name!r}")
 
         obj = copy.copy(obj)
         if isinstance(obj, DocType) and not config["nested_types"]:
@@ -235,7 +272,7 @@ class CrystalCollector(BaseCollector):
     def _get_locations(cls, obj: DocObject) -> Sequence[str]:
         if isinstance(obj, DocConstant):
             obj = obj.parent
-            if obj is None:
+            if not obj:
                 return ()
         if isinstance(obj, DocType):
             return [loc["url"].rsplit("#", 1)[0] for loc in obj["locations"]]
@@ -246,11 +283,11 @@ class CrystalCollector(BaseCollector):
     def _filter(
         cls,
         filters: Union[bool, Sequence[str]],
-        mapp: Dict[str, T],
-        getter: Callable[[T], Iterable[str]],
-    ) -> Dict[str, T]:
+        mapp: _DocMapping[D],
+        getter: Callable[[D], Sequence[str]],
+    ) -> _DocMapping[D]:
         if filters is False:
-            return {}
+            return _DocMapping(())
         if filters is True:
             return mapp
         try:
@@ -260,26 +297,22 @@ class CrystalCollector(BaseCollector):
                 f"Expected a non-empty list of strings as filters, not {filters!r}"
             )
 
-        return dict(cls._apply_filter(filters, mapp.items(), getter))
+        return _DocMapping([item for item in mapp if _apply_filter(filters, getter(item))])
 
-    @classmethod
-    def _apply_filter(
-        cls,
-        filters: Sequence[str],
-        items: Iterable[Tuple[str, T]],
-        getter: Callable[[T], Iterable[str]],
-    ) -> Iterable[Tuple[str, T]]:
-        for k, v in items:
-            match = False
-            for filt in filters:
-                filter_kind = True
-                if filt.startswith("!"):
-                    filter_kind = False
-                    filt = filt[1:]
-                if any(re.search(filt, s) for s in getter(v)):
-                    match = filter_kind
-            if match:
-                yield (k, v)
+
+def _apply_filter(
+    filters: Iterable[str],
+    tags: Sequence[str],
+) -> bool:
+    match = False
+    for filt in filters:
+        filter_kind = True
+        if filt.startswith("!"):
+            filter_kind = False
+            filt = filt[1:]
+        if any(re.search(filt, s) for s in tags):
+            match = filter_kind
+    return match
 
 
 class CrystalHandler(BaseHandler):
