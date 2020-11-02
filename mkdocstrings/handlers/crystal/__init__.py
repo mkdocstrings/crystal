@@ -125,26 +125,34 @@ class CrystalRenderer(BaseRenderer):
         heading_level = final_config["heading_level"]
 
         return template.render(
-            config=final_config, obj=data, heading_level=heading_level, root=True
+            config=final_config,
+            obj=data,
+            heading_level=heading_level,
+            root=True,
+            toc_dedup=self._toc_dedup,
         )
 
     def update_env(self, md: Markdown, config: dict) -> None:
-        extensions = list(config["mdx"])
-        extensions.append(EscapeHtmlExtension())
-        extensions.append(XrefExtension(self.collector))
-        self.md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
+        if md != getattr(self, "_prev_md", None):
+            self._prev_md = md
 
-        super().update_env(self.md, config)
+            extensions = list(config["mdx"])
+            extensions.append(EscapeHtmlExtension())
+            extensions.append(XrefExtension(self.collector))
+            self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
+
+            self._toc_dedup = _Deduplicator()
+
+        super().update_env(self._md, config)
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
         self.env.keep_trailing_newline = False
 
         self.env.filters["convert_markdown"] = self._convert_markdown
-        self.env.globals["deduplicator"] = _Deduplicator
 
     def _convert_markdown(self, text: str, context: DocObject):
-        self.md.treeprocessors["mkdocstrings_crystal_xref"].context = context
-        return Markup(self.md.convert(text))
+        self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
+        return Markup(self._md.convert(text))
 
 
 class _Deduplicator:
