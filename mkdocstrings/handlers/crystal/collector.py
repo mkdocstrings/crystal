@@ -154,7 +154,7 @@ class CrystalCollector(BaseCollector):
         "file_filters": True,
     }
 
-    def __init__(self):
+    def __init__(self, crystal_docs_flags: Sequence[str] = ()):
         outp = subprocess.check_output(
             [
                 "crystal",
@@ -163,6 +163,7 @@ class CrystalCollector(BaseCollector):
                 "--project-name=",
                 "--project-version=",
                 "--source-refname=master",
+                *crystal_docs_flags,
             ]
         )
         self.root = json.loads(outp, object_hook=_object_hook)["program"]

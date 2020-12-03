@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
 from mkdocstrings.handlers.base import BaseHandler
 
@@ -11,9 +11,12 @@ class CrystalHandler(BaseHandler):
 
 
 def get_handler(
-    theme: str, custom_templates: Optional[str] = None, **config: Any
+    theme: str,
+    custom_templates: Optional[str] = None,
+    crystal_docs_flags: Sequence[str] = (),
+    **config: Any
 ) -> CrystalHandler:
-    collector = CrystalCollector()
+    collector = CrystalCollector(crystal_docs_flags=crystal_docs_flags)
     renderer = CrystalRenderer("crystal", theme, custom_templates)
     renderer.collector = collector
     return CrystalHandler(collector, renderer)
