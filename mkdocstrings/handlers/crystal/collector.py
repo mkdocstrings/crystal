@@ -188,7 +188,7 @@ class CrystalCollector(BaseCollector):
 
         if identifier.startswith("::") or not context:
             context = self.root
-        obj = context
+        ret_obj = obj = context
 
         path = re.split(r"(::|#|\.|:|^)", identifier)
         for sep, name in zip(path[1::2], path[2::2]):
@@ -197,7 +197,7 @@ class CrystalCollector(BaseCollector):
             except KeyError:
                 raise CollectionError(f"{identifier!r} - unknown separator {sep!r}") from None
             mapp = collections.ChainMap(*(obj[t.JSON_KEY] for t in order if t.JSON_KEY in obj))
-            obj = mapp.get(name.replace(" ", "")) or mapp.get(name.split("(", 1)[0])
+            ret_obj = obj = mapp.get(name.replace(" ", "")) or mapp.get(name.split("(", 1)[0])
             if isinstance(obj, DocType) and obj.get("aliased"):
                 try:
                     obj = self.collect(obj["aliased"], {"nested_types": True})
@@ -208,7 +208,7 @@ class CrystalCollector(BaseCollector):
                     return self.collect(identifier, config, context=context.parent)
                 raise CollectionError(f"{identifier!r} - can't find {name!r}")
 
-        obj = copy.copy(obj)
+        obj = copy.copy(ret_obj)
         if isinstance(obj, DocType) and not config["nested_types"]:
             obj[DocType.JSON_KEY] = {}
         for key in DOC_TYPES:
