@@ -193,7 +193,12 @@ class CrystalCollector(BaseCollector):
                 raise CollectionError(f"{identifier!r} - unknown separator {sep!r}") from None
             mapp = collections.ChainMap(*(obj[t.JSON_KEY] for t in order if t.JSON_KEY in obj))
             obj = mapp.get(name.replace(" ", "")) or mapp.get(name.split("(", 1)[0])
-            if not obj:
+            if isinstance(obj, DocType) and obj.get("aliased"):
+                try:
+                    obj = self.collect(obj["aliased"], {"nested_types": True})
+                except CollectionError:
+                    pass
+            if obj is None:
                 if context is not self.root:
                     return self.collect(identifier, config, context=context.parent)
                 raise CollectionError(f"{identifier!r} - can't find {name!r}")
