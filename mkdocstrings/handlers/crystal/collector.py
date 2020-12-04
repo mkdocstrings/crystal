@@ -47,8 +47,10 @@ class DocObject(collections.UserDict, metaclass=abc.ABCMeta):
     def abs_id(self):
         return self["id"]
 
-    def __repr__(self):
-        return type(self).__name__ + super().__repr__()
+    def __repr__(self, skip_keys={"doc", "summary", "url", "locations", "html_id", "path"}):
+        return type(self).__name__ + repr(
+            {k: v for k, v in self.items() if v and k not in skip_keys}
+        )
 
     def __bool__(self):
         return True
@@ -59,7 +61,7 @@ class DocType(DocObject):
 
     @property
     def abs_id(self):
-        return self["full_name"]
+        return self["full_name"].split("(", 1)[0]
 
 
 class DocConstant(DocObject):
@@ -139,6 +141,9 @@ class _DocMapping(Generic[D]):
 
     def __getitem__(self, key: str) -> D:
         return self.search[key]
+
+    def __repr__(self):
+        return "DocMapping" + repr(list(self.search))
 
 
 def _object_hook(obj: MutableMapping[str, T]) -> MutableMapping[str, Union[DocObject, T]]:
