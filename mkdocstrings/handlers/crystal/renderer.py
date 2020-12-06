@@ -101,10 +101,10 @@ class _RefInsertingTreeprocessor(Treeprocessor):
             # Replace the `code` with a new `span` (need to propagate the tail too).
             root[i] = span = etree.Element("span")
             span.tail = el.tail
-            # Put the old `code` into the `span`, wrap it into special text for mkdocstrings.
-            span.text = "["
+            el.tail = None
+            # Put the `code` into the `span`, with a special attribute for mkdocstrings to pick up.
             span.append(el)
-            el.tail = "][" + ref_obj.abs_id + "]"
+            span.set("data-mkdocstrings-identifier", ref_obj.abs_id)
 
 
 def _deduplicate_toc(toc: List[dict]) -> None:
