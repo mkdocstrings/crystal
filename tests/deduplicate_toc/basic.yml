@@ -1,0 +1,30 @@
+input:
+- level: 1
+  id: a
+  name: a
+  children:
+  - level: 2
+    id: foo
+    name: foo
+    children: []
+  - level: 2
+    id: foobar
+    name: foo
+    children: []
+  - level: 2
+    id: bar
+    name: bar
+    children: []
+output:
+- level: 1
+  id: a
+  name: a
+  children:
+  - level: 2
+    id: foo
+    name: foo
+    children: []
+  - level: 2
+    id: bar
+    name: bar
+    children: []
