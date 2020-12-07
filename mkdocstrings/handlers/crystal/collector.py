@@ -160,7 +160,7 @@ class CrystalCollector(BaseCollector):
     }
 
     def __init__(self, crystal_docs_flags: Sequence[str] = ()):
-        outp = subprocess.check_output(
+        with subprocess.Popen(
             [
                 "crystal",
                 "docs",
@@ -169,9 +169,10 @@ class CrystalCollector(BaseCollector):
                 "--project-version=",
                 "--source-refname=master",
                 *crystal_docs_flags,
-            ]
-        )
-        self.root = json.loads(outp, object_hook=_object_hook)["program"]
+            ],
+            stdout=subprocess.PIPE,
+        ) as proc:
+            self.root = json.load(proc.stdout, object_hook=_object_hook)["program"]
 
     _LOOKUP_ORDER = {
         "": [DocType, DocConstant, DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro],
