@@ -55,6 +55,28 @@ class DocObject(collections.UserDict, metaclass=abc.ABCMeta):
     def __bool__(self):
         return True
 
+    def lookup(self, identifier: str) -> "DocObject":
+        ret_obj = obj = self
+        path = re.split(r"(::|#|\.|:|^)", identifier)
+        for sep, name in zip(path[1::2], path[2::2]):
+            try:
+                order = _LOOKUP_ORDER[sep]
+            except KeyError:
+                raise CollectionError(f"{identifier!r} - unknown separator {sep!r}") from None
+            mapp = collections.ChainMap(*(obj[t.JSON_KEY] for t in order if t.JSON_KEY in obj))
+            obj = mapp.get(name.replace(" ", "")) or mapp.get(name.split("(", 1)[0])
+            if isinstance(obj, DocType) and obj.get("aliased"):
+                try:
+                    obj = self.lookup(obj["aliased"])
+                except CollectionError:
+                    pass
+            if obj is None:
+                if self.parent:
+                    return self.parent.lookup(identifier)
+                raise CollectionError(f"{identifier!r} - can't find {name!r}")
+            ret_obj: DocObject = obj
+        return ret_obj
+
 
 class DocType(DocObject):
     JSON_KEY = "types"
@@ -62,6 +84,11 @@ class DocType(DocObject):
     @property
     def abs_id(self):
         return self["full_name"].split("(", 1)[0]
+
+    def walk_types(self) -> Iterator["DocType"]:
+        for typ in self["types"]:
+            yield typ
+            yield from typ.walk_types()
 
 
 class DocConstant(DocObject):
@@ -119,6 +146,14 @@ DOC_TYPES = {
     for t in [DocType, DocInstanceMethod, DocClassMethod, DocMacro, DocConstructor, DocConstant]
 }
 
+_LOOKUP_ORDER = {
+    "": [DocType, DocConstant, DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro],
+    "::": [DocType, DocConstant],
+    "#": [DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro],
+    ".": [DocClassMethod, DocConstructor, DocInstanceMethod, DocMacro],
+    ":": [DocMacro],
+}
+
 D = TypeVar("D", bound=DocObject)
 
 
@@ -172,15 +207,7 @@ class CrystalCollector(BaseCollector):
             ],
             stdout=subprocess.PIPE,
         ) as proc:
-            self.root = json.load(proc.stdout, object_hook=_object_hook)["program"]
-
-    _LOOKUP_ORDER = {
-        "": [DocType, DocConstant, DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro],
-        "::": [DocType, DocConstant],
-        "#": [DocInstanceMethod, DocClassMethod, DocConstructor, DocMacro],
-        ".": [DocClassMethod, DocConstructor, DocInstanceMethod, DocMacro],
-        ":": [DocMacro],
-    }
+            self.root = DocType(json.load(proc.stdout, object_hook=_object_hook)["program"])
 
     def collect(
         self, identifier: str, config: Mapping[str, Any], *, context: Optional[DocObject] = None
@@ -189,27 +216,9 @@ class CrystalCollector(BaseCollector):
 
         if identifier.startswith("::") or not context:
             context = self.root
-        ret_obj = obj = context
 
-        path = re.split(r"(::|#|\.|:|^)", identifier)
-        for sep, name in zip(path[1::2], path[2::2]):
-            try:
-                order = self._LOOKUP_ORDER[sep]
-            except KeyError:
-                raise CollectionError(f"{identifier!r} - unknown separator {sep!r}") from None
-            mapp = collections.ChainMap(*(obj[t.JSON_KEY] for t in order if t.JSON_KEY in obj))
-            ret_obj = obj = mapp.get(name.replace(" ", "")) or mapp.get(name.split("(", 1)[0])
-            if isinstance(obj, DocType) and obj.get("aliased"):
-                try:
-                    obj = self.collect(obj["aliased"], {"nested_types": True})
-                except CollectionError:
-                    pass
-            if obj is None:
-                if context is not self.root:
-                    return self.collect(identifier, config, context=context.parent)
-                raise CollectionError(f"{identifier!r} - can't find {name!r}")
+        obj = copy.copy(context.lookup(identifier))
 
-        obj = copy.copy(ret_obj)
         if isinstance(obj, DocType) and not config["nested_types"]:
             obj[DocType.JSON_KEY] = {}
         for key in DOC_TYPES:
