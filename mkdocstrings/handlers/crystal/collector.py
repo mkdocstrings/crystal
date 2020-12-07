@@ -122,7 +122,7 @@ DOC_TYPES = {
 D = TypeVar("D", bound=DocObject)
 
 
-class _DocMapping(Generic[D]):
+class DocMapping(Generic[D]):
     def __init__(self, items: Sequence[D]):
         self.items = items
         self.search = search = {}
@@ -149,7 +149,7 @@ class _DocMapping(Generic[D]):
 def _object_hook(obj: MutableMapping[str, T]) -> MutableMapping[str, Union[DocObject, T]]:
     for key, sublist in obj.items():
         if key in DOC_TYPES:
-            obj[key] = _DocMapping(list(map(DOC_TYPES[key], obj[key])))
+            obj[key] = DocMapping(list(map(DOC_TYPES[key], obj[key])))
     return obj
 
 
@@ -233,11 +233,11 @@ class CrystalCollector(BaseCollector):
     def _filter(
         cls,
         filters: Union[bool, Sequence[str]],
-        mapp: _DocMapping[D],
+        mapp: DocMapping[D],
         getter: Callable[[D], Sequence[str]],
-    ) -> _DocMapping[D]:
+    ) -> DocMapping[D]:
         if filters is False:
-            return _DocMapping(())
+            return DocMapping(())
         if filters is True:
             return mapp
         try:
@@ -247,7 +247,7 @@ class CrystalCollector(BaseCollector):
                 f"Expected a non-empty list of strings as filters, not {filters!r}"
             )
 
-        return _DocMapping([item for item in mapp if _apply_filter(filters, getter(item))])
+        return DocMapping([item for item in mapp if _apply_filter(filters, getter(item))])
 
 
 def _apply_filter(
