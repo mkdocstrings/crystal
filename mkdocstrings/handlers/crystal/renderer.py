@@ -1,9 +1,10 @@
 import collections
+import contextlib
 import xml.etree.ElementTree as etree
 from typing import List, TypeVar
 
 from markdown import Markdown
-from markdown.extensions import Extension
+from markdown.extensions import Extension, fenced_code
 from markdown.treeprocessors import Treeprocessor
 from markupsafe import Markup
 from mkdocstrings.handlers.base import BaseRenderer, CollectionError
@@ -27,12 +28,13 @@ class CrystalRenderer(BaseRenderer):
 
         template = self.env.get_template(f"{data.JSON_KEY.rstrip('s')}.html")
 
-        return template.render(
-            config=econfig,
-            obj=data,
-            heading_level=econfig["heading_level"],
-            root=True,
-        )
+        with self._monkeypatch_highlight_functions(default_lang="crystal"):
+            return template.render(
+                config=econfig,
+                obj=data,
+                heading_level=econfig["heading_level"],
+                root=True,
+            )
 
     def update_env(self, md: Markdown, config: dict) -> None:
         econfig = collections.ChainMap(self.default_config)
@@ -52,6 +54,11 @@ class CrystalRenderer(BaseRenderer):
             extensions.append(XrefExtension(self.collector))
             self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
 
+            self._pymdownx_hl = None
+            for ext in self._md.registeredExtensions:
+                if hasattr(ext, "get_pymdownx_highlighter"):
+                    self._pymdownx_hl = ext
+
         super().update_env(self._md, config)
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
@@ -62,6 +69,35 @@ class CrystalRenderer(BaseRenderer):
     def _convert_markdown(self, text: str, context: DocObject):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
         return Markup(self._md.convert(text))
+
+    def _monkeypatch_highlight_functions(self, default_lang: str):
+        """Changes 'codehilite' and 'pymdownx.highlight' extensions to use this lang by default."""
+        # Yes, there really isn't a better way. I'd be glad to be proven wrong.
+        if self._pymdownx_hl:
+            old = self._pymdownx_hl.get_pymdownx_highlighter()
+            members = {
+                "highlight": lambda self, src="", language="", *args, **kwargs: old.highlight(
+                    self, src, language or default_lang, *args, **kwargs
+                )
+            }
+            subclass = type("Highlighter", (old,), members)
+            return _monkeypatch(self._pymdownx_hl, "get_pymdownx_highlighter", lambda: subclass)
+        else:
+            old = fenced_code.CodeHilite
+            new = lambda src, *args, lang=None, **kwargs: old(
+                src, *args, lang=lang or default_lang, **kwargs
+            )
+            return _monkeypatch(fenced_code, "CodeHilite", new)
+
+
+@contextlib.contextmanager
+def _monkeypatch(obj, attr, func):
+    old = getattr(obj, attr)
+    setattr(obj, attr, func)
+    try:
+        yield
+    finally:
+        setattr(obj, attr, old)
 
 
 class _EscapeHtmlExtension(Extension):
