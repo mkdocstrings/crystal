@@ -65,16 +65,16 @@ class DocObject(collections.UserDict, metaclass=abc.ABCMeta):
                 raise CollectionError(f"{identifier!r} - unknown separator {sep!r}") from None
             mapp = collections.ChainMap(*(obj[t.JSON_KEY] for t in order if t.JSON_KEY in obj))
             obj = mapp.get(name.replace(" ", "")) or mapp.get(name.split("(", 1)[0])
+            if obj is None:
+                if self.parent:
+                    return self.parent.lookup(identifier)
+                raise CollectionError(f"{identifier!r} - can't find {name!r}")
+            ret_obj = obj
             if isinstance(obj, DocType) and obj.get("aliased"):
                 try:
                     obj = self.lookup(obj["aliased"])
                 except CollectionError:
                     pass
-            if obj is None:
-                if self.parent:
-                    return self.parent.lookup(identifier)
-                raise CollectionError(f"{identifier!r} - can't find {name!r}")
-            ret_obj: DocObject = obj
         return ret_obj
 
 

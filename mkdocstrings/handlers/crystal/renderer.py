@@ -1,10 +1,10 @@
 import collections
 import contextlib
 import xml.etree.ElementTree as etree
-from typing import List, TypeVar
+from typing import List, Optional, TypeVar
 
-from markdown import Markdown
-from markdown.extensions import Extension, fenced_code
+from markdown import Markdown  # type: ignore
+from markdown.extensions import Extension, fenced_code  # type: ignore
 from markdown.treeprocessors import Treeprocessor
 from markupsafe import Markup
 from mkdocstrings.handlers.base import BaseRenderer, CollectionError
@@ -119,9 +119,12 @@ class XrefExtension(Extension):
 
 
 class _RefInsertingTreeprocessor(Treeprocessor):
+    context: Optional[DocObject]
+
     def __init__(self, md, collector: CrystalCollector):
         super().__init__(md)
         self.collector = collector
+        self.context = None
 
     def run(self, root: etree.Element):
         for i, el in enumerate(root):
