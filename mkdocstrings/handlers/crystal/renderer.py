@@ -1,5 +1,6 @@
 import collections
 import contextlib
+import re
 import xml.etree.ElementTree as etree
 from typing import List, Optional, TypeVar
 
@@ -52,6 +53,7 @@ class CrystalRenderer(BaseRenderer):
             extensions = list(config["mdx"])
             extensions.append(_EscapeHtmlExtension())
             extensions.append(XrefExtension(self.collector))
+            extensions.append(ShiftHeadingsExtension())
             self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
 
             self._pymdownx_hl = None
@@ -66,9 +68,13 @@ class CrystalRenderer(BaseRenderer):
 
         self.env.filters["convert_markdown"] = self._convert_markdown
 
-    def _convert_markdown(self, text: str, context: DocObject):
+    def _convert_markdown(self, text: str, context: DocObject, heading_level: int):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
-        return Markup(self._md.convert(text))
+        self._md.treeprocessors["mkdocstrings_crystal_headings"].shift_by = heading_level - 1
+        try:
+            return Markup(self._md.convert(text))
+        finally:
+            self._md.treeprocessors["mkdocstrings_crystal_headings"].shift_by = 0
 
     def _monkeypatch_highlight_functions(self, default_lang: str):
         """Changes 'codehilite' and 'pymdownx.highlight' extensions to use this lang by default."""
@@ -144,6 +150,30 @@ class _RefInsertingTreeprocessor(Treeprocessor):
             # Put the `code` into the `span`, with a special attribute for mkdocstrings to pick up.
             span.append(el)
             span.set("data-mkdocstrings-identifier", ref_obj.abs_id)
+
+
+class ShiftHeadingsExtension(Extension):
+    def extendMarkdown(self, md: Markdown) -> None:
+        md.registerExtension(self)
+        md.treeprocessors.register(
+            _HeadingShiftingTreeprocessor(md, 0), "mkdocstrings_crystal_headings", 12
+        )
+
+
+class _HeadingShiftingTreeprocessor(Treeprocessor):
+    def __init__(self, md, shift_by: int):
+        super().__init__(md)
+        self.shift_by = shift_by
+
+    def run(self, root: etree.Element):
+        if not self.shift_by:
+            return
+        for el in root.iter():
+            m = re.fullmatch(r"([Hh])([1-6])", el.tag)
+            if m:
+                level = int(m[2]) + self.shift_by
+                level = max(1, min(level, 6))
+                el.tag = f"{m[1]}{level}"
 
 
 def _deduplicate_toc(toc: List[dict]) -> None:
