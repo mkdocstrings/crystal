@@ -70,7 +70,7 @@ class CrystalRenderer(BaseRenderer):
 
     def _convert_markdown(self, text: str, context: DocObject, heading_level: int):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
-        self._md.treeprocessors["mkdocstrings_crystal_headings"].shift_by = heading_level - 1
+        self._md.treeprocessors["mkdocstrings_crystal_headings"].shift_by = heading_level
         try:
             return Markup(self._md.convert(text))
         finally:
