@@ -19,7 +19,7 @@ class CrystalRenderer(BaseRenderer):
     fallback_theme = "material"
 
     default_config: dict = {
-        "show_source": True,
+        "show_source_links": True,
         "heading_level": 2,
         "deduplicate_toc": True,
     }
