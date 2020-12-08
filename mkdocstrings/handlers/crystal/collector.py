@@ -105,11 +105,15 @@ class DocMethod(DocObject, metaclass=abc.ABCMeta):
 
     @property
     def rel_id(self):
-        args = [arg["external_name"] for arg in self["args"]]
-        if self.get("splat_index") is not None:
-            args[self["splat_index"]] = "*" + args[self["splat_index"]]
-        if self.get("double_splat"):
-            args.append("**" + self["double_splat"]["external_name"])
+        d = self["def"]
+
+        args = [arg["external_name"] for arg in d["args"]]
+        if d.get("splat_index") is not None:
+            args[d["splat_index"]] = "*" + args[d["splat_index"]]
+        if d.get("double_splat"):
+            args.append("**" + d["double_splat"]["external_name"])
+        if d.get("block_arg"):
+            args.append("&")
 
         return self.name + "(" + ",".join(args) + ")"
 

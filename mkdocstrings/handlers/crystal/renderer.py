@@ -67,6 +67,16 @@ class CrystalRenderer(BaseRenderer):
         self.env.keep_trailing_newline = False
 
         self.env.filters["convert_markdown"] = self._convert_markdown
+        self.env.filters["reference"] = self._reference
+
+    def _reference(self, path: str):
+        try:
+            ref_obj = self.collector.collect(path, {})
+        except CollectionError:
+            return path
+        else:
+            html = '<span data-mkdocstrings-identifier="{0}">{0}</span>'
+            return Markup(html).format(ref_obj.abs_id)
 
     def _convert_markdown(self, text: str, context: DocObject, heading_level: int):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context

@@ -6,7 +6,10 @@
       class="doc doc-heading"
       data-toc-label="{{ obj.name }}">
 
-    <code>{{obj.full_name}}</code>
+    {% if obj.abstract %}abstract {% endif %}{{ obj.kind }} <code>{{obj.full_name}}</code>
+    {% if obj.superclass %}
+      <br/><small>inherits <code>{{ obj.superclass.full_name |reference }}</code></small>
+    {% endif %}
   </h{{ heading_level }}>
 
   <div class="doc doc-contents {% if root %}first{% endif %}">
@@ -14,8 +17,27 @@
 
     {% with root = False, heading_level = heading_level + 1 %}
       <div class="doc doc-children">
+        {% if obj.alias %}
+          <h{{ heading_level }}>Alias Definition</h{{ heading_level }}>
+          <code>{{ obj.aliased |reference }}</code>
+        {% endif %}
+
+        {% for title, sub in [
+            ("Included modules", obj.included_modules),
+            ("Extended modules", obj.extended_modules),
+            ("Direct known subclasses", obj.subclasses),
+            ("Direct including types", obj.including_types),
+        ] %}
+          {% if sub %}
+            <h{{ heading_level }}>{{ title }}</h{{ heading_level }}>
+            {% for other in sub %}
+              <code>{{ other.full_name |reference }}</code>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+
         {% if obj.constants %}
-          <h{{ heading_level }}>Constants</h{{ heading_level }}>
+          <h{{ heading_level }}>{% if obj.enum %}Members{% else %}Constants{% endif %}</h{{ heading_level }}>
           {% with heading_level = heading_level + 1 %}
             {% for obj in obj.constants %}
               {% include "constant.html" with context %}
