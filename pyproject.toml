@@ -6,6 +6,7 @@ authors = ["Oleh Prypin <oleh@pryp.in>"]
 license = "MIT"
 repository = "https://github.com/oprypin/mkdocstrings-crystal"
 keywords = ["mkdocs", "mkdocstrings", "crystal", "mkdocs-plugin"]
+readme = "README.md"
 packages = [
     { include = "mkdocstrings" }
 ]

@@ -1,7 +1,7 @@
 MIT License
 
-* Copyright (c) 2020 Oleh Prypin <oleh@pryp.in>
-* Copyright (c) 2019 Timothée Mazzucotelli
+Copyright (c) 2020 Oleh Prypin <oleh@pryp.in>  
+Copyright (c) 2019 Timothée Mazzucotelli
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
