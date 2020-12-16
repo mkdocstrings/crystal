@@ -1,6 +1,5 @@
 import collections
 import contextlib
-import re
 import xml.etree.ElementTree as etree
 from typing import List, Optional, TypeVar
 
@@ -8,14 +7,15 @@ from markdown import Markdown  # type: ignore
 from markdown.extensions import Extension, fenced_code  # type: ignore
 from markdown.treeprocessors import Treeprocessor
 from markupsafe import Markup
-from mkdocstrings.handlers.base import BaseRenderer, CollectionError
+
+from mkdocstrings.handlers import base
 
 from .collector import CrystalCollector, DocObject
 
 T = TypeVar("T")
 
 
-class CrystalRenderer(BaseRenderer):
+class CrystalRenderer(base.BaseRenderer):
     fallback_theme = "material"
 
     default_config: dict = {
@@ -53,7 +53,7 @@ class CrystalRenderer(BaseRenderer):
             extensions = list(config["mdx"])
             extensions.append(_EscapeHtmlExtension())
             extensions.append(XrefExtension(self.collector))
-            extensions.append(ShiftHeadingsExtension())
+            extensions.append(base.ShiftHeadingsExtension())
             self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
 
             self._pymdownx_hl = None
@@ -72,7 +72,7 @@ class CrystalRenderer(BaseRenderer):
     def _reference(self, path: str):
         try:
             ref_obj = self.collector.collect(path, {})
-        except CollectionError:
+        except base.CollectionError:
             return path
         else:
             html = '<span data-mkdocstrings-identifier="{0}">{0}</span>'
@@ -80,11 +80,7 @@ class CrystalRenderer(BaseRenderer):
 
     def _convert_markdown(self, text: str, context: DocObject, heading_level: int):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
-        self._md.treeprocessors["mkdocstrings_crystal_headings"].shift_by = heading_level
-        try:
-            return Markup(self._md.convert(text))
-        finally:
-            self._md.treeprocessors["mkdocstrings_crystal_headings"].shift_by = 0
+        return base.do_convert_markdown(self._md, text, heading_level=heading_level)
 
     def _monkeypatch_highlight_functions(self, default_lang: str):
         """Changes 'codehilite' and 'pymdownx.highlight' extensions to use this lang by default."""
@@ -150,7 +146,7 @@ class _RefInsertingTreeprocessor(Treeprocessor):
 
             try:
                 ref_obj = self.collector.collect("".join(el.itertext()), {}, context=self.context)
-            except CollectionError:
+            except base.CollectionError:
                 continue
 
             # Replace the `code` with a new `span` (need to propagate the tail too).
@@ -160,30 +156,6 @@ class _RefInsertingTreeprocessor(Treeprocessor):
             # Put the `code` into the `span`, with a special attribute for mkdocstrings to pick up.
             span.append(el)
             span.set("data-mkdocstrings-identifier", ref_obj.abs_id)
-
-
-class ShiftHeadingsExtension(Extension):
-    def extendMarkdown(self, md: Markdown) -> None:
-        md.registerExtension(self)
-        md.treeprocessors.register(
-            _HeadingShiftingTreeprocessor(md, 0), "mkdocstrings_crystal_headings", 12
-        )
-
-
-class _HeadingShiftingTreeprocessor(Treeprocessor):
-    def __init__(self, md, shift_by: int):
-        super().__init__(md)
-        self.shift_by = shift_by
-
-    def run(self, root: etree.Element):
-        if not self.shift_by:
-            return
-        for el in root.iter():
-            m = re.fullmatch(r"([Hh])([1-6])", el.tag)
-            if m:
-                level = int(m[2]) + self.shift_by
-                level = max(1, min(level, 6))
-                el.tag = f"{m[1]}{level}"
 
 
 def _deduplicate_toc(toc: List[dict]) -> None:
