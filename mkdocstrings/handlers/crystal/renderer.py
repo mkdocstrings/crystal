@@ -1,8 +1,9 @@
 import collections
 import contextlib
 import xml.etree.ElementTree as etree
-from typing import List, Optional, TypeVar
+from typing import List, Optional, TypeVar, Union
 
+import jinja2
 from markdown import Markdown  # type: ignore
 from markdown.extensions import Extension, fenced_code  # type: ignore
 from markdown.treeprocessors import Treeprocessor
@@ -10,7 +11,7 @@ from markupsafe import Markup
 
 from mkdocstrings.handlers import base
 
-from .collector import CrystalCollector, DocObject
+from .collector import CrystalCollector, DocConstant, DocItem, DocMethod, DocPath, DocType
 
 T = TypeVar("T")
 
@@ -24,10 +25,17 @@ class CrystalRenderer(base.BaseRenderer):
         "deduplicate_toc": True,
     }
 
-    def render(self, data: DocObject, config: dict) -> str:
+    def render(self, data: DocItem, config: dict) -> str:
         econfig = collections.ChainMap(config, self.default_config)
 
-        template = self.env.get_template(f"{data.JSON_KEY.rstrip('s')}.html")
+        tpl = None
+        if isinstance(data, DocType):
+            tpl = "type.html"
+        elif isinstance(data, DocMethod):
+            tpl = "method.html"
+        elif isinstance(data, DocConstant):
+            tpl = "constant.html"
+        template = self.env.get_template(tpl)
 
         with self._monkeypatch_highlight_functions(default_lang="crystal"):
             return template.render(
@@ -65,20 +73,21 @@ class CrystalRenderer(base.BaseRenderer):
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
         self.env.keep_trailing_newline = False
+        self.env.undefined = jinja2.StrictUndefined
 
         self.env.filters["convert_markdown"] = self._convert_markdown
         self.env.filters["reference"] = self._reference
 
-    def _reference(self, path: str):
+    def _reference(self, path: Union[str, DocPath]) -> str:
         try:
-            ref_obj = self.collector.collect(path, {})
+            ref_obj = self.collector.root.lookup(path)
         except base.CollectionError:
-            return path
+            return str(path)
         else:
             html = '<span data-mkdocstrings-identifier="{0}">{0}</span>'
             return Markup(html).format(ref_obj.abs_id)
 
-    def _convert_markdown(self, text: str, context: DocObject, heading_level: int):
+    def _convert_markdown(self, text: str, context: DocItem, heading_level: int):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
         return base.do_convert_markdown(self._md, text, heading_level=heading_level)
 
@@ -131,7 +140,7 @@ class XrefExtension(Extension):
 
 
 class _RefInsertingTreeprocessor(Treeprocessor):
-    context: Optional[DocObject]
+    context: Optional[DocItem]
 
     def __init__(self, md, collector: CrystalCollector):
         super().__init__(md)

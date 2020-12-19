@@ -1,12 +1,12 @@
 {{ log.debug() }}
 
-<div class="doc doc-object doc-{{ kind }}">
+<div class="doc doc-object doc-method doc-{{ obj.kind }}">
   <h{{ heading_level }}
       id="{{ obj.abs_id }}"
       class="doc doc-heading"
       data-toc-label="{{ obj.short_name }}">
 
-    {% if obj.abstract %}<small style="font-weight: normal">abstract</small> {% endif %}
+    {% if obj.is_abstract %}<small style="font-weight: normal">abstract</small> {% endif %}
     <code class="highlight language-crystal">
       {{ obj.short_name }}<span style="font-weight: normal">{% if obj.args_string.startswith(" ") %} {% endif %}{{ obj.args_string |striptags |highlight(language="crystal", inline=True) }}</span>
     </code>

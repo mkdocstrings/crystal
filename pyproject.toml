@@ -16,6 +16,8 @@ python = "^3.6"
 mkdocstrings = { git = "https://github.com/pawamoy/mkdocstrings.git", branch = "master" }
 mkdocs-material = "^6.0.2"
 markupsafe = "^1.1.1"
+cached-property = "^1.5.2"
+Jinja2 = "^2.11.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"

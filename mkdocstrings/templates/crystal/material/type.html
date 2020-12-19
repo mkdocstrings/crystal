@@ -1,14 +1,14 @@
 {{ log.debug() }}
 
-<div class="doc doc-object doc-class">
+<div class="doc doc-object doc-type {{ obj.kind }}">
   <h{{ heading_level }}
       id="{{ obj.abs_id }}"
       class="doc doc-heading"
       data-toc-label="{{ obj.name }}">
 
-    {% if obj.abstract %}abstract {% endif %}{{ obj.kind }} <code>{{obj.full_name}}</code>
+    {% if obj.is_abstract %}abstract {% endif %}{{ obj.kind }} <code>{{ obj.full_name }}</code>
     {% if obj.superclass %}
-      <br/><small>inherits <code>{{ obj.superclass.full_name |reference }}</code></small>
+      <br/><small>inherits <code>{{ obj.superclass |reference }}</code></small>
     {% endif %}
   </h{{ heading_level }}>
 
@@ -17,7 +17,7 @@
 
     {% with root = False, heading_level = heading_level + 1 %}
       <div class="doc doc-children">
-        {% if obj.alias %}
+        {% if obj.kind == "alias" %}
           <h{{ heading_level }}>Alias Definition</h{{ heading_level }}>
           <code>{{ obj.aliased |reference }}</code>
         {% endif %}
@@ -31,13 +31,13 @@
           {% if sub %}
             <h{{ heading_level }}>{{ title }}</h{{ heading_level }}>
             {% for other in sub %}
-              <code>{{ other.full_name |reference }}</code>
+              <code>{{ other |reference }}</code>
             {% endfor %}
           {% endif %}
         {% endfor %}
 
         {% if obj.constants %}
-          <h{{ heading_level }}>{% if obj.enum %}Members{% else %}Constants{% endif %}</h{{ heading_level }}>
+          <h{{ heading_level }}>{% if obj.kind == "enum" %}Members{% else %}Constants{% endif %}</h{{ heading_level }}>
           {% with heading_level = heading_level + 1 %}
             {% for obj in obj.constants %}
               {% include "constant.html" with context %}
@@ -45,35 +45,20 @@
           {% endwith %}
         {% endif %}
 
-        {% if obj.class_methods or obj.constructors %}
-          <h{{ heading_level }}>Class methods</h{{ heading_level }}>
-          {% with heading_level = heading_level + 1 %}
-            {% for obj in obj.constructors %}
-              {% include "class_method.html" with context %}
-            {% endfor %}
-            {% for obj in obj.class_methods %}
-              {% include "class_method.html" with context %}
-            {% endfor %}
-          {% endwith %}
-        {% endif %}
-
-        {% if obj.instance_methods %}
-          <h{{ heading_level }}>Methods</h{{ heading_level }}>
-          {% with heading_level = heading_level + 1 %}
-            {% for obj in obj.instance_methods %}
-              {% include "instance_method.html" with context %}
-            {% endfor %}
-          {% endwith %}
-        {% endif %}
-
-        {% if obj.macros %}
-          <h{{ heading_level }}>Macros</h{{ heading_level }}>
-          {% with heading_level = heading_level + 1 %}
-            {% for obj in obj.macros %}
-              {% include "macro.html" with context %}
-            {% endfor %}
-          {% endwith %}
-        {% endif %}
+        {% for title, sub in [
+            ("Class methods", obj.class_methods + obj.constructors),
+            ("Methods", obj.instance_methods),
+            ("Macros", obj.macros),
+        ] %}
+          {% if sub %}
+            <h{{ heading_level }}>{{ title }}</h{{ heading_level }}>
+            {% with heading_level = heading_level + 1 %}
+              {% for obj in sub %}
+                {% include "method.html" with context %}
+              {% endfor %}
+            {% endwith %}
+          {% endif %}
+        {% endfor %}
       </div>
     {% endwith %}
   </div>
