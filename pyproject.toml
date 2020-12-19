@@ -12,7 +12,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 mkdocstrings = { git = "https://github.com/pawamoy/mkdocstrings.git", branch = "master" }
 mkdocs-material = "^6.0.2"
 markupsafe = "^1.1.1"

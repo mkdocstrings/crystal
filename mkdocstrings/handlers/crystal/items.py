@@ -22,9 +22,7 @@ class DocItem(metaclass=abc.ABCMeta):
     """The item that is the parent namespace for this item."""
     root: "DocType" = None
 
-    def __init__(
-        self, data: Mapping[str, Any], parent: Optional["DocItem"], root: Optional["DocType"]
-    ):
+    def __init__(self, data: Mapping[str, Any], parent: Optional[DocItem], root: Optional[DocType]):
         self.data = data
         self.parent = parent
         self.root = root or self
@@ -67,7 +65,7 @@ class DocItem(metaclass=abc.ABCMeta):
     def __bool__(self):
         return True
 
-    def lookup(self, identifier: Union[str, DocPath]) -> "DocItem":
+    def lookup(self, identifier: Union[str, DocPath]) -> DocItem:
         """Find an item by its identifier, relative to this item or the root.
 
         Raises:
@@ -118,7 +116,7 @@ class DocType(DocItem):
 
     _TEMPLATE = "type.html"
 
-    def __new__(cls, data: Mapping[str, Any] = None, *args, **kwargs) -> "DocType":
+    def __new__(cls, data: Mapping[str, Any] = None, *args, **kwargs) -> DocType:
         if cls is DocType:
             cls = {
                 "module": DocModule,
