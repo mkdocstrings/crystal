@@ -11,7 +11,7 @@ from markupsafe import Markup
 
 from mkdocstrings.handlers import base
 
-from .collector import CrystalCollector, DocConstant, DocItem, DocMethod, DocPath, DocType
+from .collector import CrystalCollector, DocItem, DocPath
 
 T = TypeVar("T")
 
@@ -27,15 +27,7 @@ class CrystalRenderer(base.BaseRenderer):
 
     def render(self, data: DocItem, config: dict) -> str:
         econfig = collections.ChainMap(config, self.default_config)
-
-        tpl = None
-        if isinstance(data, DocType):
-            tpl = "type.html"
-        elif isinstance(data, DocMethod):
-            tpl = "method.html"
-        elif isinstance(data, DocConstant):
-            tpl = "constant.html"
-        template = self.env.get_template(tpl)
+        template = self.env.get_template(data._TEMPLATE)
 
         with self._monkeypatch_highlight_functions(default_lang="crystal"):
             return template.render(
@@ -134,17 +126,14 @@ class XrefExtension(Extension):
 
     def extendMarkdown(self, md: Markdown) -> None:
         md.registerExtension(self)
-        md.treeprocessors.register(
-            _RefInsertingTreeprocessor(md, self.collector), "mkdocstrings_crystal_xref", 12
-        )
+        md.treeprocessors.register(_RefInsertingTreeprocessor(md), "mkdocstrings_crystal_xref", 12)
 
 
 class _RefInsertingTreeprocessor(Treeprocessor):
     context: Optional[DocItem]
 
-    def __init__(self, md, collector: CrystalCollector):
+    def __init__(self, md):
         super().__init__(md)
-        self.collector = collector
         self.context = None
 
     def run(self, root: etree.Element):
@@ -153,8 +142,9 @@ class _RefInsertingTreeprocessor(Treeprocessor):
                 self.run(el)
                 continue
 
+            assert self.context, "Bug: `CrystalRenderer` should have set the `context` member"
             try:
-                ref_obj = self.collector.collect("".join(el.itertext()), {}, context=self.context)
+                ref_obj = self.context.lookup("".join(el.itertext()))
             except base.CollectionError:
                 continue
 

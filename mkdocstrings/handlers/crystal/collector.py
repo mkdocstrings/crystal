@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 import collections
-import copy
 import json
 import re
 import subprocess
@@ -33,6 +32,7 @@ class DocItem(metaclass=abc.ABCMeta):
     * `doc`: `str`
     """
 
+    _TEMPLATE: str
     parent: Optional["DocItem"] = None
     """The item that is the parent namespace for this item."""
     root: "DocType" = None
@@ -118,6 +118,8 @@ class DocItem(metaclass=abc.ABCMeta):
 
 class DocType(DocItem):
     """A [DocItem][mkdocstrings.handlers.crystal.collector.DocItem] representing a Crystal type."""
+
+    _TEMPLATE = "type.html"
 
     def __new__(cls, data: Mapping[str, Any] = None, *args, **kwargs) -> "DocType":
         if cls is DocType:
@@ -264,6 +266,7 @@ class DocConstant(DocItem):
 class DocMethod(DocItem, metaclass=abc.ABCMeta):
     """A [DocItem][mkdocstrings.handlers.crystal.collector.DocItem] representing a Crystal method."""
 
+    _TEMPLATE = "method.html"
     METHOD_SEP: str = ""
     METHOD_ID_SEP: str
 
@@ -344,6 +347,8 @@ class DocMacro(DocMethod):
 
 class DocConstructor(DocClassMethod):
     """A [DocInstanceMethod][mkdocstrings.handlers.crystal.collector.DocInstanceMethod] representing a Crystal macro."""
+
+    _TEMPLATE = "constant.html"
 
 
 _LOOKUP_ORDER = {
@@ -448,24 +453,24 @@ class CrystalCollector(BaseCollector):
     ) -> DocItem:
         config = collections.ChainMap(config, self.default_config)
 
-        obj = copy.copy((context or self.root).lookup(identifier))
+        return DocView((context or self.root).lookup(identifier), config)
 
-        if isinstance(obj, DocType):
-            if not config["nested_types"]:
-                obj.types = DocMapping(())
-            for attr in (
-                "types",
-                "instance_methods",
-                "class_methods",
-                "macros",
-                "constructors",
-                "constants",
-            ):
-                items = getattr(obj, attr)
-                if items:
-                    items = self._filter(config["file_filters"], items, self._get_locations)
-                    setattr(obj, attr, items)
-        return obj
+
+class DocView(DocItem):
+    def __init__(self, item: DocItem, config: Mapping[str, Any]):
+        self._item = item
+        self._config = config
+
+    def __getattribute__(self, name: str):
+        item = super().__getattribute__("_item")
+        config = super().__getattribute__("_config")
+
+        val = getattr(item, name)
+        if isinstance(val, DocMapping) and val:
+            if name == "types" and not config["nested_types"]:
+                return DocMapping(())
+            return type(self)._filter(config["file_filters"], val, type(self)._get_locations)
+        return val
 
     @classmethod
     def _get_locations(cls, obj: DocItem) -> Sequence[str]:
