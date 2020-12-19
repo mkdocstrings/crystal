@@ -11,7 +11,8 @@ from markupsafe import Markup
 
 from mkdocstrings.handlers import base
 
-from .collector import CrystalCollector, DocItem, DocPath
+from .collector import CrystalCollector
+from .items import DocItem, DocPath
 
 T = TypeVar("T")
 
