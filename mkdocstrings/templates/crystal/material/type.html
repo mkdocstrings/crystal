@@ -18,7 +18,7 @@
     {% with root = False, heading_level = heading_level + 1 %}
       <div class="doc doc-children">
         {% if obj.kind == "alias" %}
-          <h{{ heading_level }}>Alias Definition</h{{ heading_level }}>
+          <h{{ heading_level }}>Alias definition</h{{ heading_level }}>
           <code>{{ obj.aliased |reference }}</code>
         {% endif %}
 
