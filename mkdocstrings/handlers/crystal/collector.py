@@ -4,6 +4,7 @@ import re
 import subprocess
 from typing import Any, Callable, Iterable, Mapping, Optional, Sequence, TypeVar, Union
 
+from cached_property import cached_property
 from mkdocstrings.handlers.base import BaseCollector, CollectionError
 
 from .items import DocConstant, DocItem, DocMapping, DocMethod, DocType
@@ -17,11 +18,8 @@ class CrystalCollector(BaseCollector):
         "file_filters": True,
     }
 
-    root: DocType = None
-    """The top-level namespace, represented as a fake module."""
-
     def __init__(self, crystal_docs_flags: Sequence[str] = ()):
-        with subprocess.Popen(
+        self._proc = subprocess.Popen(
             [
                 "crystal",
                 "docs",
@@ -32,8 +30,13 @@ class CrystalCollector(BaseCollector):
                 *crystal_docs_flags,
             ],
             stdout=subprocess.PIPE,
-        ) as proc:
-            self.root = DocType(json.load(proc.stdout)["program"], None, None)
+        )
+
+    @cached_property
+    def root(self) -> DocType:
+        """The top-level namespace, represented as a fake module."""
+        with self._proc:
+            return DocType(json.load(self._proc.stdout)["program"], None, None)
 
     def collect(
         self, identifier: str, config: Mapping[str, Any], *, context: Optional[DocItem] = None
