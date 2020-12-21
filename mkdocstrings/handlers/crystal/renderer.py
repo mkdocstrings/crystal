@@ -62,14 +62,13 @@ class CrystalRenderer(base.BaseRenderer):
                 if hasattr(ext, "get_pymdownx_highlighter"):
                     self._pymdownx_hl = ext
 
-        super().update_env(self._md, config)
-        self.env.trim_blocks = True
-        self.env.lstrip_blocks = True
-        self.env.keep_trailing_newline = False
-        self.env.undefined = jinja2.StrictUndefined
+            self.env.trim_blocks = True
+            self.env.lstrip_blocks = True
+            self.env.keep_trailing_newline = False
+            self.env.undefined = jinja2.StrictUndefined
 
-        self.env.filters["convert_markdown"] = self._convert_markdown
-        self.env.filters["reference"] = self._reference
+            self.env.filters["convert_markdown"] = self._convert_markdown
+            self.env.filters["reference"] = self._reference
 
     def _reference(self, path: Union[str, DocPath]) -> str:
         try:
