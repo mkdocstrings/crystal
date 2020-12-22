@@ -55,6 +55,7 @@ class CrystalRenderer(base.BaseRenderer):
             extensions.append(_EscapeHtmlExtension())
             extensions.append(XrefExtension(self.collector))
             extensions.append(base.ShiftHeadingsExtension())
+            extensions.append(base.PrefixIdsExtension())
             self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
 
             self._pymdownx_hl = None
@@ -79,9 +80,11 @@ class CrystalRenderer(base.BaseRenderer):
             html = '<span data-mkdocstrings-identifier="{0}">{0}</span>'
             return Markup(html).format(ref_obj.abs_id)
 
-    def _convert_markdown(self, text: str, context: DocItem, heading_level: int):
+    def _convert_markdown(self, text: str, context: DocItem, heading_level: int, html_id: str):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
-        return base.do_convert_markdown(self._md, text, heading_level=heading_level)
+        return base.do_convert_markdown(
+            self._md, text, heading_level=heading_level, html_id=html_id
+        )
 
     def _monkeypatch_highlight_functions(self, default_lang: str):
         """Changes 'codehilite' and 'pymdownx.highlight' extensions to use this lang by default."""
