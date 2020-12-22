@@ -16,7 +16,7 @@
     {% if obj.doc %}{{ obj.doc |convert_markdown(obj, heading_level, obj.abs_id) }}{% endif %}
   </div>
 
-  {% if config.show_source_links and obj.source_link %}
-    [<a href="{{ obj.source_link }}">View source</a>]
+  {% if config.show_source_links and obj.location and obj.location.url %}
+    [<a href="{{ obj.location.url }}">View source</a>]
   {% endif %}
 </div>

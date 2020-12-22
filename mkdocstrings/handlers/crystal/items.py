@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import collections
+import dataclasses
 import re
 from typing import Any, Generic, Iterator, Mapping, Optional, Sequence, TypeVar, Union
 
@@ -199,6 +200,13 @@ class DocType(DocItem):
     def including_types(self) -> Sequence[DocPath]:
         return [DocPath(x, self) for x in self.data["including_types"]]
 
+    @cached_property
+    def locations(self) -> Sequence[DocLocation]:
+        return [
+            DocLocation(loc["filename"], loc["line_number"], loc["url"])
+            for loc in self.data["locations"]
+        ]
+
     def walk_types(self) -> Iterator["DocType"]:
         """Iterate over all types under this type (excl. itself) in lexicographic order."""
         for typ in self.types:
@@ -305,9 +313,12 @@ class DocMethod(DocItem, metaclass=abc.ABCMeta):
     def args_string(self) -> str:
         return re.sub(r"<\w.*?>", "", self.data["args_string"])
 
-    @property
-    def source_url(self) -> str:
-        return self.data["source_url"]
+    @cached_property
+    def location(self) -> Optional[DocLocation]:
+        m = re.fullmatch(r".+?/(?:blob|tree)/[^/]+/(.+)#L(\d+)", self.data.get("source_link") or "")
+        if m:
+            filename, line = m.groups()
+            return DocLocation(filename, line, self.data.get("source_link"))
 
 
 class DocInstanceMethod(DocMethod):
@@ -385,6 +396,13 @@ class DocMapping(Generic[D]):
     def __repr__(self):
         items = ", ".join(repr(item.rel_id) for item in self.items)
         return f"{type(self).__name__}{{{items}}}"
+
+
+@dataclasses.dataclass
+class DocLocation:
+    filename: str
+    line: int
+    url: Optional[str]
 
 
 class DocPath:
