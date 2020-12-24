@@ -72,6 +72,8 @@ class CrystalRenderer(base.BaseRenderer):
             self.env.filters["reference"] = self._reference
 
     def _reference(self, path: Union[str, DocPath]) -> str:
+        if "(" in str(path):
+            return str(path)
         try:
             ref_obj = self.collector.root.lookup(path)
         except base.CollectionError:
