@@ -311,7 +311,7 @@ class DocMethod(DocItem, metaclass=abc.ABCMeta):
 
     @property
     def args_string(self) -> str:
-        return re.sub(r"<\w.*?>", "", self.data["args_string"])
+        return re.sub(r"<[\w/].*?>", "", self.data["args_string"])
 
     @cached_property
     def location(self) -> Optional[DocLocation]:
