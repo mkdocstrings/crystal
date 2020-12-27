@@ -7,7 +7,7 @@
       data-toc-label="{{ obj.short_name }}">
 
     {% if obj.is_abstract %}<small style="font-weight: normal">abstract</small> {% endif %}
-    <code class="highlight language-crystal">
+    <code>
       {{ obj.short_name }}<span style="font-weight: normal">{{ obj.args_string |highlight(language="crystal", inline=True) }}</span>
     </code>
   </h{{ heading_level }}>
