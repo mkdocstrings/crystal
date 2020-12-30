@@ -41,7 +41,7 @@ class CrystalRenderer(base.BaseRenderer):
         return data.abs_id
 
     def update_env(self, md: Markdown, config: dict) -> None:
-        md = Markdown(extensions=config["mdx"], extension_configs=config["mdx_configs"])
+        super().update_env(md, config)
         self._md = md
 
         self._pymdownx_hl = None
@@ -55,8 +55,6 @@ class CrystalRenderer(base.BaseRenderer):
         del md.preprocessors["html_block"]
         del md.inlinePatterns["html"]
 
-        base.ShiftHeadingsExtension().extendMarkdown(md)
-        base.PrefixIdsExtension().extendMarkdown(md)
         md.treeprocessors.register(_RefInsertingTreeprocessor(md), "mkdocstrings_crystal_xref", 12)
 
         self.env.trim_blocks = True
@@ -92,9 +90,7 @@ class CrystalRenderer(base.BaseRenderer):
 
     def do_convert_markdown(self, text: str, context: DocItem, heading_level: int, html_id: str):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
-        return base.do_convert_markdown(
-            self._md, text, heading_level=heading_level, html_id=html_id
-        )
+        return super().do_convert_markdown(text, heading_level=heading_level, html_id=html_id)
 
     def _monkeypatch_highlight_function(self, default_lang: str):
         """Changes 'pymdownx.highlight' extension to use this lang by default."""

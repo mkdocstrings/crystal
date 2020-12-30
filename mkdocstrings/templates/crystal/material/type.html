@@ -2,16 +2,12 @@
 
 <div class="doc doc-object doc-type {{ obj.kind }}">
   {% if obj.parent %}
-  <h{{ heading_level }}
-      id="{{ obj.abs_id }}"
-      class="doc doc-heading"
-      data-toc-label="{{ obj.name }}">
-
+  {% filter heading(heading_level, id=obj.abs_id, class="doc doc-heading", toc_label=obj.name) %}
     {% if obj.is_abstract %}abstract {% endif %}{{ obj.kind }} <code>{{ obj.full_name }}</code>
     {% if obj.superclass %}
       <br/><small>inherits <code>{{ obj.superclass |reference }}</code></small>
     {% endif %}
-  </h{{ heading_level }}>
+  {% endfilter %}
   {% endif %}
 
   <div class="doc doc-contents {% if root %}first{% endif %}">
@@ -39,7 +35,11 @@
         {% endfor %}
 
         {% if obj.constants %}
-          <h{{ heading_level }}>{% if obj.kind == "enum" %}Members{% else %}Constants{% endif %}</h{{ heading_level }}>
+          {% if obj.kind == "enum" %}
+            {% filter heading(heading_level, id=obj.abs_id ~ "-members") %}Members{% endfilter %}
+          {% else %}
+            {% filter heading(heading_level, id=obj.abs_id ~ "-constants") %}Constants{% endfilter %}
+          {% endif %}
           {% with heading_level = heading_level + 1 %}
             {% for obj in obj.constants %}
               {% include "constant.html" with context %}
@@ -53,7 +53,7 @@
             ("Macros", obj.macros),
         ] %}
           {% if sub %}
-            <h{{ heading_level }}>{{ title }}</h{{ heading_level }}>
+            {% filter heading(heading_level, id=obj.abs_id ~ "-" ~ title.lower().replace(" ", "-")) %}{{ title }}{% endfilter %}
             {% with heading_level = heading_level + 1 %}
               {% for obj in sub %}
                 {% include "method.html" with context %}
