@@ -27,49 +27,48 @@ class CrystalRenderer(base.BaseRenderer):
     }
 
     def render(self, data: DocItem, config: dict) -> str:
-        econfig = collections.ChainMap(config, self.default_config)
+        subconfig = collections.ChainMap(config, self.default_config)
         template = self.env.get_template(data._TEMPLATE)
 
         with self._monkeypatch_highlight_functions(default_lang="crystal"):
             return template.render(
-                config=econfig,
+                config=subconfig,
                 obj=data,
-                heading_level=econfig["heading_level"],
+                heading_level=subconfig["heading_level"],
                 root=True,
             )
 
     def update_env(self, md: Markdown, config: dict) -> None:
-        econfig = collections.ChainMap(self.default_config)
+        subconfig = collections.ChainMap(self.default_config)
         try:
-            econfig = econfig.new_child(config["mkdocstrings"]["handlers"]["crystal"]["rendering"])
+            subconfig = subconfig.new_child(
+                config["mkdocstrings"]["handlers"]["crystal"]["rendering"]
+            )
         except KeyError:
             pass
 
-        if md != getattr(self, "_prev_md", None):
-            self._prev_md = md
+        if subconfig["deduplicate_toc"]:
+            DeduplicateTocExtension().extendMarkdown(md)
 
-            if econfig["deduplicate_toc"]:
-                DeduplicateTocExtension().extendMarkdown(md)
+        extensions = list(config["mdx"])
+        extensions.append(_EscapeHtmlExtension())
+        extensions.append(XrefExtension(self.collector))
+        extensions.append(base.ShiftHeadingsExtension())
+        extensions.append(base.PrefixIdsExtension())
+        self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
 
-            extensions = list(config["mdx"])
-            extensions.append(_EscapeHtmlExtension())
-            extensions.append(XrefExtension(self.collector))
-            extensions.append(base.ShiftHeadingsExtension())
-            extensions.append(base.PrefixIdsExtension())
-            self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
+        self._pymdownx_hl = None
+        for ext in self._md.registeredExtensions:
+            if hasattr(ext, "get_pymdownx_highlighter"):
+                self._pymdownx_hl = ext
 
-            self._pymdownx_hl = None
-            for ext in self._md.registeredExtensions:
-                if hasattr(ext, "get_pymdownx_highlighter"):
-                    self._pymdownx_hl = ext
+        self.env.trim_blocks = True
+        self.env.lstrip_blocks = True
+        self.env.keep_trailing_newline = False
+        self.env.undefined = jinja2.StrictUndefined
 
-            self.env.trim_blocks = True
-            self.env.lstrip_blocks = True
-            self.env.keep_trailing_newline = False
-            self.env.undefined = jinja2.StrictUndefined
-
-            self.env.filters["convert_markdown"] = self._convert_markdown
-            self.env.filters["reference"] = self._reference
+        self.env.filters["convert_markdown"] = self._convert_markdown
+        self.env.filters["reference"] = self._reference
 
     def _reference(self, path: Union[str, DocPath]) -> str:
         if "(" in str(path):
