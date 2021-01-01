@@ -37,16 +37,13 @@ plugins:
   - mkdocstrings:
       default_handler: crystal
       watch: [src]
-```
 
-<details><summary>Recommended Markdown extensions</summary>
-
-```yaml
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.magiclink
   - pymdownx.saneheaders
   - pymdownx.superfences
+  - deduplicate-toc
 ```
 
 </details>
@@ -135,10 +132,6 @@ A list of command line arguments to pass to `crystal doc`. Mainly used to choose
 
   Each inserted identifier gets an HTML heading. The default heading is `<h2>`, and sub-headings in it are shifted accordingly (so if you write headings in doc comments, you're welcome to start with `#` `<h1>`). You can change this heading level, either the default one or per-identifier.
 
-* `deduplicate_toc:`: (**`true`**/`false`)
-
-  Set to `false` to skip the feature that de-duplicates consecutive items in the table of contents. This feature is needed because Crystal can have multiple overloads of a method but in the ToC only their names are shown.
-
 ### Example of a global config
 
 ```yaml
@@ -166,3 +159,9 @@ plugins:
     rendering:
       heading_level: 3
 ```
+
+### Extras
+
+#### "deduplicate-toc" extension
+
+For most [usages it is recommended](#usage) to enable the "deduplicate-toc" Markdown extension, which comes bundled with mkdocstrings-crystal. It de-duplicates consecutive items that have the same title in the table of contents. This is useful because Crystal can have multiple overloads of a method but in the ToC only their names are shown.

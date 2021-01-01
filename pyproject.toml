@@ -11,6 +11,9 @@ packages = [
     { include = "mkdocstrings" }
 ]
 
+[tool.poetry.plugins."markdown.extensions"]
+deduplicate-toc = "mkdocstrings.handlers.crystal.deduplicate_toc:DeduplicateTocExtension"
+
 [tool.poetry.dependencies]
 python = "^3.7"
 mkdocstrings = { git = "https://github.com/pawamoy/mkdocstrings.git", branch = "master" }
