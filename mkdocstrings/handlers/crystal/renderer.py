@@ -38,27 +38,31 @@ class CrystalRenderer(base.BaseRenderer):
             )
 
     def update_env(self, md: Markdown, config: dict) -> None:
-        extensions = list(config["mdx"])
-        extensions.append(_EscapeHtmlExtension())
-        extensions.append(XrefExtension(self.collector))
-        extensions.append(base.ShiftHeadingsExtension())
-        extensions.append(base.PrefixIdsExtension())
-        self._md = Markdown(extensions=extensions, extension_configs=config["mdx_configs"])
+        md = Markdown(extensions=config["mdx"], extension_configs=config["mdx_configs"])
+        self._md = md
 
         self._pymdownx_hl = None
-        for ext in self._md.registeredExtensions:
+        for ext in md.registeredExtensions:
             if hasattr(ext, "get_pymdownx_highlighter"):
                 self._pymdownx_hl = ext
+
+        # Disallow raw HTML.
+        del md.preprocessors["html_block"]
+        del md.inlinePatterns["html"]
+
+        base.ShiftHeadingsExtension().extendMarkdown(md)
+        base.PrefixIdsExtension().extendMarkdown(md)
+        XrefExtension(self.collector).extendMarkdown(md)
 
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
         self.env.keep_trailing_newline = False
         self.env.undefined = jinja2.StrictUndefined
 
-        self.env.filters["convert_markdown"] = self._convert_markdown
-        self.env.filters["reference"] = self._reference
+        self.env.filters["convert_markdown"] = self.do_convert_markdown
+        self.env.filters["reference"] = self.do_reference
 
-    def _reference(self, path: Union[str, DocPath]) -> str:
+    def do_reference(self, path: Union[str, DocPath]) -> str:
         if "(" in str(path):
             return str(path)
         try:
@@ -69,7 +73,7 @@ class CrystalRenderer(base.BaseRenderer):
             html = '<span data-mkdocstrings-identifier="{0}">{0}</span>'
             return Markup(html).format(ref_obj.abs_id)
 
-    def _convert_markdown(self, text: str, context: DocItem, heading_level: int, html_id: str):
+    def do_convert_markdown(self, text: str, context: DocItem, heading_level: int, html_id: str):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
         return base.do_convert_markdown(
             self._md, text, heading_level=heading_level, html_id=html_id
@@ -105,19 +109,12 @@ def _monkeypatch(obj, attr, func):
         setattr(obj, attr, old)
 
 
-class _EscapeHtmlExtension(Extension):
-    def extendMarkdown(self, md: Markdown):
-        del md.preprocessors["html_block"]
-        del md.inlinePatterns["html"]
-
-
 class XrefExtension(Extension):
     def __init__(self, collector: CrystalCollector, **kwargs) -> None:
         super().__init__(**kwargs)
         self.collector = collector
 
     def extendMarkdown(self, md: Markdown) -> None:
-        md.registerExtension(self)
         md.treeprocessors.register(_RefInsertingTreeprocessor(md), "mkdocstrings_crystal_xref", 12)
 
 
