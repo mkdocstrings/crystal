@@ -9,6 +9,8 @@ from typing import Any, Generic, Iterator, Mapping, Optional, Sequence, TypeVar,
 from cached_property import cached_property
 from mkdocstrings.handlers.base import CollectionError
 
+from . import crystal_html
+
 
 class DocItem(metaclass=abc.ABCMeta):
     """A representation of a documentable item from Crystal language.
@@ -309,9 +311,14 @@ class DocMethod(DocItem, metaclass=abc.ABCMeta):
     def args(self) -> Mapping[str, Any]:
         return self.data["args"]
 
-    @property
-    def args_string(self) -> str:
-        return re.sub(r"<[\w/].*?>", "", self.data["args_string"])
+    @cached_property
+    def args_html(self) -> crystal_html.TextWithLinks:
+        # https://github.com/crystal-lang/crystal/pull/10109
+        try:
+            html = self.data["args_html"]
+        except KeyError:
+            html = self.data["args_string"]
+        return crystal_html.parse_crystal_html(html)
 
     @cached_property
     def location(self) -> Optional[DocLocation]:
