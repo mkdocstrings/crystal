@@ -71,6 +71,8 @@ class DocView(DocItem):
         if isinstance(obj, DocType):
             return [loc.url.rsplit("#", 1)[0] for loc in obj.locations]
         elif isinstance(obj, DocMethod):
+            if not obj.location:
+                return ()
             return (obj.location.url.rsplit("#", 1)[0],)
         else:
             raise TypeError(obj)
