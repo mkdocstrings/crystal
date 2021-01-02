@@ -1,0 +1,14 @@
+crystal_code_html: |2-
+   : <a href="../Foo/Bar.html">Foo::Bar</a>
+out_code: |2-
+   : Foo::Bar
+out_tokens:
+- - 3
+  - 11
+  - Foo::Bar
+pygments_code_html: |2-
+   <div class="highlight"><pre><span></span><span class="p">:</span> <span class="n">Foo</span><span class="o">::</span><span class="n">Bar</span>
+  </pre></div>
+out_linkified_code_html: |2-
+   <div class="highlight"><pre><span></span><span class="p">:</span> <a id="Foo::Bar">Foo::Bar</a>
+  </pre></div>

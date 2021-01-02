@@ -11,6 +11,7 @@ from markupsafe import Markup
 
 from mkdocstrings.handlers import base
 
+from . import crystal_html
 from .collector import CrystalCollector
 from .items import DocItem, DocPath
 
@@ -59,19 +60,31 @@ class CrystalRenderer(base.BaseRenderer):
         self.env.keep_trailing_newline = False
         self.env.undefined = jinja2.StrictUndefined
 
+        self.env.filters["code_highlight"] = self.do_code_highlight
         self.env.filters["convert_markdown"] = self.do_convert_markdown
         self.env.filters["reference"] = self.do_reference
 
-    def do_reference(self, path: Union[str, DocPath]) -> str:
+    def do_code_highlight(self, code, **kwargs) -> str:
+        text = str(code)
+        stext = text.lstrip()
+        indent = text[: len(text) - len(stext)]
+        html = indent + self.env.filters["highlight"](stext, **kwargs)
+        if isinstance(code, crystal_html.TextWithLinks):
+            html = crystal_html.linkify_highlighted_html(html, code.tokens, self.do_reference)
+        return html
+
+    def do_reference(self, path: Union[str, DocPath], text: Optional[str] = None) -> str:
+        if text is None:
+            text = str(path)
         if "(" in str(path):
-            return str(path)
+            return text
         try:
             ref_obj = self.collector.root.lookup(path)
         except base.CollectionError:
-            return str(path)
+            return text
         else:
-            html = '<span data-mkdocstrings-identifier="{0}">{0}</span>'
-            return Markup(html).format(ref_obj.abs_id)
+            html = '<span data-mkdocstrings-identifier="{}">{}</span>'
+            return Markup(html).format(ref_obj.abs_id, text)
 
     def do_convert_markdown(self, text: str, context: DocItem, heading_level: int, html_id: str):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context

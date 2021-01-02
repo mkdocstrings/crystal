@@ -1,0 +1,30 @@
+crystal_code_html: |-
+  (blend_mode : <a href="../SF/BlendMode.html">BlendMode</a>, transform : <a href="../SF/Transform.html">Transform</a>, texture : <a href="../SF/Texture.html">Texture</a>?, shader : <a href="../SF/Transform.html">Transform</a>, texture : <a href="../SF/Texture.html">Texture</a>?, shader : <a href="../SF/Shader.html">Shader</a>?)
+out_code: |-
+  (blend_mode : BlendMode, transform : Transform, texture : Texture?, shader : Transform, texture : Texture?, shader : Shader?)
+out_tokens:
+- - 14
+  - 23
+  - SF::BlendMode
+- - 37
+  - 46
+  - SF::Transform
+- - 58
+  - 65
+  - SF::Texture
+- - 77
+  - 86
+  - SF::Transform
+- - 98
+  - 105
+  - SF::Texture
+- - 117
+  - 123
+  - SF::Shader
+pygments_code_html: |
+  <div class="highlight"><pre><span></span><span class="p">(</span><span class="n">blend_mode</span> <span class="p">:</span> <span class="n">BlendMode</span><span class="p">,</span> <span class="n">transform</span> <span class="p">:</span> <span class="n">Transform</span><span class="p">,</span> <span class="n">texture</span> <span class="p">:</span> <span class="n">Texture?</span><span class="p">,</span> <span class="n">shader</span> <span class="p">:</span> <span class="n">Shader?</span><span class="p">)</span>
+  </pre></div>
+out_linkified_code_html: |+
+  <div class="highlight"><pre><span></span><span class="p">(</span><span class="n">blend_mode</span> <span class="p">:</span> <a id="SF::BlendMode">BlendMode</a><span class="p">,</span> <span class="n">transform</span> <span class="p">:</span> <a id="SF::Transform">Transform</a><span class="p">,</span> <span class="n">texture</span> <span class="p">:</span> <a id="SF::Texture">Texture?</a><span class="p">,</span> <span class="n">shader</span> <span class="p">:</span> Shader?)
+
+...

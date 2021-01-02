@@ -1,0 +1,17 @@
+crystal_code_html: |-
+  (timeout : <a href="Time/Span.html">Time::Span</a>?, select_action : Channel::TimeoutAction? = <span class="n">nil</span>) : <a href="Nil.html">Nil</a>
+out_code: |-
+  (timeout : Time::Span?, select_action : Channel::TimeoutAction? = nil) : Nil
+out_tokens:
+- - 11
+  - 21
+  - Time::Span
+- - 73
+  - 76
+  - Nil
+pygments_code_html: |
+  <div class="highlight"><pre><span></span><span class="p">(</span><span class="n">timeout</span> <span class="p">:</span> <span class="n">Time</span><span class="o">::</span><span class="n">Span?</span><span class="p">,</span> <span class="n">select_action</span> <span class="p">:</span> <span class="n">Channel</span><span class="o">::</span><span class="n">TimeoutAction?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">:</span> <span class="n">Nil</span>
+  </pre></div>
+out_linkified_code_html: |
+  <div class="highlight"><pre><span></span><span class="p">(</span><span class="n">timeout</span> <span class="p">:</span> <a id="Time::Span">Time::Span?</a><span class="p">,</span> <span class="n">select_action</span> <span class="p">:</span> <span class="n">Channel</span><span class="o">::</span><span class="n">TimeoutAction?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">:</span> <a id="Nil">Nil</a>
+  </pre></div>
