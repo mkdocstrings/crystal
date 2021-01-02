@@ -96,7 +96,7 @@ class DocItem(metaclass=abc.ABCMeta):
             ret_obj = obj
             if isinstance(obj, DocAlias):
                 try:
-                    obj = self.lookup(obj.aliased)
+                    obj = self.lookup(str(obj.aliased))
                 except CollectionError:
                     pass
         return ret_obj
@@ -237,10 +237,13 @@ class DocModule(DocType):
 
 
 class DocAlias(DocType):
-    @property
-    def aliased(self):
-        assert self.data["aliased"]
-        return self.data["aliased"]
+    @cached_property
+    def aliased(self) -> crystal_html.TextWithLinks:
+        # https://github.com/crystal-lang/crystal/pull/10117
+        try:
+            return crystal_html.parse_crystal_html(self.data["aliased_html"])
+        except KeyError:
+            return crystal_html.TextWithLinks(self.data["aliased"], ())
 
 
 class DocAnnotation(DocType):

@@ -19,7 +19,7 @@
       <div class="doc doc-children">
         {% if obj.kind == "alias" %}
           <h{{ heading_level }}>Alias definition</h{{ heading_level }}>
-          <code>{{ obj.aliased |reference }}</code>
+          {{ obj.aliased |code_highlight(language="crystal", inline=True) }}
         {% endif %}
 
         {% for title, sub in [
