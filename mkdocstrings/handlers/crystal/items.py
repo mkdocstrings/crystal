@@ -325,10 +325,19 @@ class DocMethod(DocItem, metaclass=abc.ABCMeta):
 
     @cached_property
     def location(self) -> Optional[DocLocation]:
-        m = re.fullmatch(r".+?/(?:blob|tree)/[^/]+/(.+)#L(\d+)", self.data.get("source_link") or "")
-        if m:
-            filename, line = m.groups()
-            return DocLocation(filename, line, self.data.get("source_link"))
+        # https://github.com/crystal-lang/crystal/pull/10122
+        try:
+            loc = self.data["location"]
+        except KeyError:
+            m = re.fullmatch(
+                r".+?/(?:blob|tree)/[^/]+/(.+)#L(\d+)", self.data.get("source_link") or ""
+            )
+            if m:
+                filename, line = m.groups()
+                return DocLocation(filename, line, self.data.get("source_link"))
+        else:
+            if loc:
+                return DocLocation(loc["filename"], loc["line_number"], loc["url"])
 
 
 class DocInstanceMethod(DocMethod):
