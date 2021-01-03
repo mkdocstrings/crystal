@@ -9,6 +9,16 @@ LinkTokens = Sequence[Tuple[int, int, str]]
 
 
 class TextWithLinks(collections.UserString):
+    """A string with embedded information about which parts of it are links to other items.
+
+    Can be converted to an actual string with `str(obj)` -- or used directly, being a subclass of `str`.
+
+    The link information is currently for internal use only.
+    """
+
+    tokens: LinkTokens
+    """The list of embedded links."""
+
     def __init__(self, string, tokens: LinkTokens):
         super().__init__(string)
         self.tokens = tokens

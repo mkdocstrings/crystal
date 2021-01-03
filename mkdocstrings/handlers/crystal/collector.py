@@ -2,12 +2,12 @@ import collections
 import json
 import re
 import subprocess
-from typing import Any, Callable, Iterable, Mapping, Optional, Sequence, TypeVar, Union
+from typing import Any, Callable, Iterable, Mapping, Sequence, TypeVar, Union
 
 from cached_property import cached_property
 from mkdocstrings.handlers.base import BaseCollector, CollectionError
 
-from .items import DocConstant, DocItem, DocMapping, DocMethod, DocType
+from .items import DocConstant, DocItem, DocMapping, DocMethod, DocModule, DocType
 
 D = TypeVar("D", bound=DocItem)
 
@@ -19,6 +19,10 @@ class CrystalCollector(BaseCollector):
     }
 
     def __init__(self, crystal_docs_flags: Sequence[str] = ()):
+        """Create a "collector", reading docs from `crystal doc` in the current directory.
+
+        When using mkdocstrings-crystal within MkDocs, a plugin can access the instance as `config['plugins']['mkdocstrings'].get_handler('crystal').collector`.
+        """
         self._proc = subprocess.Popen(
             [
                 "crystal",
@@ -33,17 +37,20 @@ class CrystalCollector(BaseCollector):
         )
 
     @cached_property
-    def root(self) -> DocType:
+    def root(self) -> DocModule:
         """The top-level namespace, represented as a fake module."""
         with self._proc:
-            return DocType(json.load(self._proc.stdout)["program"], None, None)
+            return DocModule(json.load(self._proc.stdout)["program"], None, None)
 
-    def collect(
-        self, identifier: str, config: Mapping[str, Any], *, context: Optional[DocItem] = None
-    ) -> DocItem:
+    def collect(self, identifier: str, config: Mapping[str, Any]) -> DocItem:
+        """[Find][mkdocstrings.handlers.crystal.items.DocItem] an item by its identifier.
+
+        Raises:
+            CollectionError: When an item by that identifier couldn't be found.
+        """
         config = collections.ChainMap(config, self.default_config)
 
-        return DocView((context or self.root).lookup(identifier), config)
+        return DocView(self.root.lookup(identifier), config)
 
 
 class DocView(DocItem):

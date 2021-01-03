@@ -13,17 +13,12 @@ from . import crystal_html
 
 
 class DocItem(metaclass=abc.ABCMeta):
-    """A representation of a documentable item from Crystal language.
-
-    Acts as a dictionary that (additionally) always has these keys:
-
-    * `doc`: `str`
-    """
+    """A representation of a documentable item from Crystal language."""
 
     _TEMPLATE: str
-    parent: Optional["DocItem"] = None
+    parent: Optional[DocItem] = None
     """The item that is the parent namespace for this item."""
-    root: "DocType" = None
+    root: DocType = None
 
     def __init__(self, data: Mapping[str, Any], parent: Optional[DocItem], root: Optional[DocType]):
         self.data = data
@@ -49,6 +44,7 @@ class DocItem(metaclass=abc.ABCMeta):
 
     @property
     def doc(self) -> str:
+        """The doc comment of this item."""
         return self.data["doc"]
 
     @classmethod
@@ -65,12 +61,13 @@ class DocItem(metaclass=abc.ABCMeta):
         )
         return f"{type(self).__name__}({items})"
 
-    def __bool__(self):
-        return True
-
     def lookup(self, identifier: Union[str, DocPath]) -> DocItem:
         """Find an item by its identifier, relative to this item or the root.
 
+        Params:
+            identifier: The item to search for.
+        Returns:
+            An object that's a subclass of DocItem.
         Raises:
             CollectionError: When an item by that identifier couldn't be found.
         """
@@ -120,6 +117,7 @@ class DocType(DocItem):
     _TEMPLATE = "type.html"
 
     def __new__(cls, data: Mapping[str, Any] = None, *args, **kwargs) -> DocType:
+        """Based on Crystal's JSON, create an object of an appropriate subclass of DocType"""
         if cls is DocType:
             cls = {
                 "module": DocModule,
@@ -144,101 +142,117 @@ class DocType(DocItem):
 
     @property
     def kind(self) -> str:
-        """module, class, struct, enum, alias, annotation"""
+        """One of: *module, class, struct, enum, alias, annotation*.
+
+        Note that instead it's preferred to check `isinstance(obj, DocModule)`, etc.
+        """
         return self.data["kind"]
 
     @property
     def is_abstract(self) -> bool:
+        """Whether this type is abstract."""
         return self.data["abstract"]
 
     @cached_property
     def constants(self) -> DocMapping[DocConstant]:
+        """The constants (or enum members) within this type."""
         return DocMapping([DocConstant(x, self, self.root) for x in self.data["constants"]])
 
     @cached_property
     def instance_methods(self) -> DocMapping[DocInstanceMethod]:
+        """The instance methods within this type."""
         return DocMapping(
             [DocInstanceMethod(x, self, self.root) for x in self.data["instance_methods"]]
         )
 
     @cached_property
     def class_methods(self) -> DocMapping[DocClassMethod]:
+        """The class methods within this type."""
         return DocMapping([DocClassMethod(x, self, self.root) for x in self.data["class_methods"]])
 
     @cached_property
     def constructors(self) -> DocMapping[DocConstructor]:
+        """The constructors within this type."""
         return DocMapping([DocConstructor(x, self, self.root) for x in self.data["constructors"]])
 
     @cached_property
     def macros(self) -> DocMapping[DocMacro]:
+        """The macros within this type."""
         return DocMapping([DocMacro(x, self, self.root) for x in self.data["macros"]])
 
     @cached_property
     def types(self) -> DocMapping[DocType]:
+        """The types nested in this type as a namespace."""
         return DocMapping([DocType(x, self, self.root) for x in self.data["types"]])
 
     @cached_property
     def superclass(self) -> Optional[DocPath]:
+        """The possible superclass of this type."""
         if self.data["superclass"] is not None:
             return DocPath(self.data["superclass"], self)
 
     @cached_property
     def ancestors(self) -> Sequence[DocPath]:
+        """The modules and classes this type inherited."""
         return [DocPath(x, self) for x in self.data["ancestors"]]
 
     @cached_property
     def included_modules(self) -> Sequence[DocPath]:
+        """The modules that this type included."""
         return [DocPath(x, self) for x in self.data["included_modules"]]
 
     @cached_property
     def extended_modules(self) -> Sequence[DocPath]:
+        """The modules that this type extended."""
         return [DocPath(x, self) for x in self.data["extended_modules"]]
 
     @cached_property
     def subclasses(self) -> Sequence[DocPath]:
+        """Known subclasses of this type."""
         return [DocPath(x, self) for x in self.data["subclasses"]]
 
     @cached_property
     def including_types(self) -> Sequence[DocPath]:
+        """Known types that include this type."""
         return [DocPath(x, self) for x in self.data["including_types"]]
 
     @cached_property
     def locations(self) -> Sequence[DocLocation]:
+        """The [code locations][mkdocstrings.handlers.crystal.items.DocLocation] over which the definitions of this type span."""
         return [
             DocLocation(loc["filename"], loc["line_number"], loc["url"])
             for loc in self.data["locations"]
         ]
 
-    def walk_types(self) -> Iterator["DocType"]:
-        """Iterate over all types under this type (excl. itself) in lexicographic order."""
+    def walk_types(self) -> Iterator[DocType]:
+        """Recusively iterate over all types under this type (excl. itself) in lexicographic order."""
         for typ in self.types:
             yield typ
             yield from typ.walk_types()
 
 
 class DocModule(DocType):
-    pass
+    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal module."""
 
 
 class DocClass(DocType):
-    pass
+    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal class."""
 
 
 class DocStruct(DocType):
-    pass
+    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal struct."""
 
 
 class DocEnum(DocType):
-    pass
-
-
-class DocModule(DocType):
-    pass
+    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal enum."""
 
 
 class DocAlias(DocType):
+    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal alias."""
+
     @cached_property
     def aliased(self) -> crystal_html.TextWithLinks:
+        """[A rich string][mkdocstrings.handlers.crystal.crystal_html.TextWithLinks] containing the definition of what this is aliased to."""
         # https://github.com/crystal-lang/crystal/pull/10117
         try:
             return crystal_html.parse_crystal_html(self.data["aliased_html"])
@@ -247,7 +261,7 @@ class DocAlias(DocType):
 
 
 class DocAnnotation(DocType):
-    pass
+    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal annotation."""
 
 
 class DocConstant(DocItem):
@@ -263,7 +277,10 @@ class DocConstant(DocItem):
 
     @property
     def kind(self) -> str:
-        """constant"""
+        """Just: *constant*.
+
+        Note that instead it's preferred to check `isinstance(obj, DocConstant)`.
+        """
         return "constant"
 
     @property
@@ -304,18 +321,22 @@ class DocMethod(DocItem, metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def kind(self) -> str:
-        """instance_method, class_method, macro"""
+        """One of: *instance_method, class_method, macro*.
+
+        Note that instead it's preferred to check `isinstance(obj, DocInstanceMethod)`, etc.
+        """
 
     @property
-    def is_abstract(self):
+    def is_abstract(self) -> bool:
+        """Whether this method is abstract."""
         return self.data["abstract"]
 
-    @property
-    def args(self) -> Mapping[str, Any]:
-        return self.data["args"]
-
     @cached_property
-    def args_html(self) -> crystal_html.TextWithLinks:
+    def args_string(self) -> crystal_html.TextWithLinks:
+        """[A rich string][mkdocstrings.handlers.crystal.crystal_html.TextWithLinks] with the method's parameters.
+
+        e.g. `(foo : Bar) : Baz`
+        """
         # https://github.com/crystal-lang/crystal/pull/10109
         try:
             html = self.data["args_html"]
@@ -325,6 +346,7 @@ class DocMethod(DocItem, metaclass=abc.ABCMeta):
 
     @cached_property
     def location(self) -> Optional[DocLocation]:
+        """[Code location][mkdocstrings.handlers.crystal.items.DocLocation] of this method. Can be `None` if unknown."""
         # https://github.com/crystal-lang/crystal/pull/10122
         try:
             loc = self.data["location"]
@@ -377,6 +399,8 @@ class DocConstructor(DocClassMethod):
 
 
 class DocMapping(Generic[D]):
+    """Represents items contained within a type. A container of [DocItem][mkdocstrings.handlers.crystal.items.DocItem]s."""
+
     items: Sequence = ()
     search: Mapping[str, Any] = {}
 
@@ -389,18 +413,27 @@ class DocMapping(Generic[D]):
                 search.setdefault(item.name, item)
 
     def __iter__(self) -> Iterator[D]:
+        """Iterate over the items like a list."""
         return iter(self.items)
 
     def __len__(self) -> int:
+        """`len(mapping)` to get the number of items."""
         return len(self.items)
 
     def __bool__(self) -> bool:
+        """`bool(mapping)` to check whether it's non-empty."""
         return bool(self.items)
 
     def __contains__(self, key: str) -> bool:
+        """`"identifier" in mapping` to check whether the mapping contains an item by this identifier (see [DocItem.rel_id][mkdocstrings.handlers.crystal.items.DocItem.rel_id])."""
         return key in self.search
 
     def __getitem__(self, key: str) -> D:
+        """`mapping["identifier"]` to get the item by this identifier (see [DocItem.rel_id][mkdocstrings.handlers.crystal.items.DocItem.rel_id]).
+
+        Raises:
+            KeyError: if the item is missing.
+        """
         return self.search[key]
 
     def __add__(self, other: DocMapping) -> DocMapping:
@@ -419,12 +452,19 @@ class DocMapping(Generic[D]):
 
 @dataclasses.dataclass
 class DocLocation:
+    """A location in code where an item was found."""
+
     filename: str
+    """The absolute path to the file."""
     line: int
+    """The (1-based) line number in the file."""
     url: Optional[str]
+    """The derived URL of this location on a source code hosting site."""
 
 
 class DocPath:
+    """A path to a documentable Crystal item."""
+
     def __init__(self, data: Mapping[str, Any], root: DocType):
         self.data = data
         self.root = root
@@ -436,10 +476,17 @@ class DocPath:
 
     @property
     def abs_id(self) -> str:
+        """The absolute identifier of this item, sometimes known as "path", e.g. `Foo::Bar` or `Foo::Bar#baz`."""
         return self.full_name.split("(", 1)[0]
 
     def lookup(self) -> DocItem:
+        """[Look up][mkdocstrings.handlers.crystal.items.DocItem.lookup] this item in its originating doc structure.
+
+        Raises:
+            CollectionError: When an item by this identifier couldn't be found.
+        """
         return self.root.lookup(self.abs_id)
 
     def __str__(self) -> str:
+        """Convert to string -- same as `full_name`."""
         return self.full_name
