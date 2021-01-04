@@ -58,7 +58,14 @@ Then, in any `docs/**/*.md` file, you can **mention a Crystal identifier alone o
 ::: Foo::CONSTANT
 ```
 
--- and this will be replaced with generated API documentation for it, much like Crystal's own doc generator does.
+-- and in the output this will be replaced with generated API documentation for it, much like Crystal's own doc generator does.
+
+This, of course, happens as part of a normal MkDocs build process:
+
+```shell
+mkdocs build  # generate from docs/ into site/
+mkdocs serve  # live preview
+```
 
 ### Identifier linking syntax
 
