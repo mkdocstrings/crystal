@@ -16,9 +16,9 @@ class DocItem(metaclass=abc.ABCMeta):
     """A representation of a documentable item from Crystal language."""
 
     _TEMPLATE: str
-    parent: Optional[DocItem] = None
+    parent: Optional["DocItem"] = None
     """The item that is the parent namespace for this item."""
-    root: DocType = None
+    root: "DocType" = None
 
     def __init__(self, data: Mapping[str, Any], parent: Optional[DocItem], root: Optional[DocType]):
         self.data = data
