@@ -12,7 +12,7 @@ from mkdocstrings.handlers.base import CollectionError
 from . import crystal_html
 
 
-class DocItem(metaclass=abc.ABCMeta):
+class DocItem:
     """A representation of a documentable item from Crystal language."""
 
     _TEMPLATE: str
@@ -119,15 +119,19 @@ class DocType(DocItem):
     def __new__(cls, data: Mapping[str, Any] = None, *args, **kwargs) -> DocType:
         """Based on Crystal's JSON, create an object of an appropriate subclass of DocType"""
         if cls is DocType:
-            cls = {
-                "module": DocModule,
-                "class": DocClass,
-                "struct": DocStruct,
-                "enum": DocEnum,
-                "alias": DocAlias,
-                "annotation": DocAnnotation,
-            }[data["kind"]]
-            return cls.__new__(cls, data, *args, **kwargs)
+            try:
+                cls = {
+                    "module": DocModule,
+                    "class": DocClass,
+                    "struct": DocStruct,
+                    "enum": DocEnum,
+                    "alias": DocAlias,
+                    "annotation": DocAnnotation,
+                }[data["kind"]]
+            except KeyError:
+                raise TypeError(
+                    "DocType is abstract, and {kind!r} is not recognized".format_map(data)
+                )
         return super().__new__(cls)
 
     @property
@@ -288,12 +292,17 @@ class DocConstant(DocItem):
         return self.data["value"]
 
 
-class DocMethod(DocItem, metaclass=abc.ABCMeta):
+class DocMethod(DocItem):
     """A [DocItem][mkdocstrings.handlers.crystal.items.DocItem] representing a Crystal method."""
 
     _TEMPLATE = "method.html"
     METHOD_SEP: str = ""
     METHOD_ID_SEP: str
+
+    def __new__(cls, data: Mapping[str, Any] = None, *args, **kwargs) -> DocMethod:
+        if cls is DocItem:
+            raise TypeError("DocMethod is abstract")
+        return super().__new__(cls)
 
     @property
     def rel_id(self):
@@ -404,13 +413,21 @@ class DocMapping(Generic[D]):
     items: Sequence = ()
     search: Mapping[str, Any] = {}
 
+    def __new__(cls, items: Sequence[D]) -> DocMapping:
+        if not items:
+            try:
+                empty = cls._empty  # type: ignore
+            except AttributeError:
+                cls._empty = empty = object.__new__(cls)
+            return empty
+        return object.__new__(cls)
+
     def __init__(self, items: Sequence[D]):
-        if items:
-            self.items = items
-            self.search = search = {}
-            for item in self.items:
-                search.setdefault(item.rel_id, item)
-                search.setdefault(item.name, item)
+        self.items = items
+        self.search = search = {}
+        for item in self.items:
+            search.setdefault(item.rel_id, item)
+            search.setdefault(item.name, item)
 
     def __iter__(self) -> Iterator[D]:
         """Iterate over the items like a list."""
@@ -431,17 +448,18 @@ class DocMapping(Generic[D]):
     def __getitem__(self, key: str) -> D:
         """`mapping["identifier"]` to get the item by this identifier (see [DocItem.rel_id][mkdocstrings.handlers.crystal.items.DocItem.rel_id]).
 
+        Returns:
+            A [DocItem][mkdocstrings.handlers.crystal.items.DocItem]
         Raises:
             KeyError: if the item is missing.
         """
         return self.search[key]
 
     def __add__(self, other: DocMapping) -> DocMapping:
-        new = type(self).__new__(type(self))
-        if self.items and other.items:
-            new.items = [*self.items, *other.items]
-        else:
-            new.items = self.items or other.items
+        if not other:
+            return self
+        new = object.__new__(type(self))
+        new.items = [*self, *other] if self else other.items
         new.search = collections.ChainMap(new.search, other.search)
         return new
 
@@ -490,3 +508,6 @@ class DocPath:
     def __str__(self) -> str:
         """Convert to string -- same as `full_name`."""
         return self.full_name
+
+    def __repr__(self) -> str:
+        return repr(self.full_name)
