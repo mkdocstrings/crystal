@@ -12,7 +12,7 @@ from mkdocstrings.handlers.base import CollectionError
 from . import crystal_html
 
 
-class DocItem:
+class DocItem(metaclass=abc.ABCMeta):
     """A representation of a documentable item from Crystal language."""
 
     _TEMPLATE: str
@@ -54,6 +54,16 @@ class DocItem:
                 continue
             if isinstance(getattr(cls, attr), (property, cached_property)):
                 yield attr
+
+    @property
+    @abc.abstractmethod
+    def kind(self) -> str:
+        """One of:
+
+        * *module, class, struct, enum, alias, annotation,*
+        * *instance_method, class_method, macro,*
+        * *constant*
+        """
 
     def __repr__(self) -> str:
         items = ", ".join(
@@ -146,10 +156,6 @@ class DocType(DocItem):
 
     @property
     def kind(self) -> str:
-        """One of: *module, class, struct, enum, alias, annotation*.
-
-        Note that instead it's preferred to check `isinstance(obj, DocModule)`, etc.
-        """
         return self.data["kind"]
 
     @property
@@ -271,6 +277,8 @@ class DocAnnotation(DocType):
 class DocConstant(DocItem):
     """A [DocItem][mkdocstrings.handlers.crystal.items.DocItem] representing a Crystal constant definition."""
 
+    _TEMPLATE = "constant.html"
+
     @property
     def full_name(self):
         return (self.parent.full_name + "::" if self.parent else "") + self.name
@@ -281,14 +289,11 @@ class DocConstant(DocItem):
 
     @property
     def kind(self) -> str:
-        """Just: *constant*.
-
-        Note that instead it's preferred to check `isinstance(obj, DocConstant)`.
-        """
         return "constant"
 
     @property
     def value(self) -> str:
+        """The value of the constant (the code as a string)."""
         return self.data["value"]
 
 
@@ -298,11 +303,6 @@ class DocMethod(DocItem):
     _TEMPLATE = "method.html"
     METHOD_SEP: str = ""
     METHOD_ID_SEP: str
-
-    def __new__(cls, data: Mapping[str, Any] = None, *args, **kwargs) -> DocMethod:
-        if cls is DocItem:
-            raise TypeError("DocMethod is abstract")
-        return super().__new__(cls)
 
     @property
     def rel_id(self):
@@ -326,14 +326,6 @@ class DocMethod(DocItem):
     def short_name(self):
         """Similar to [rel_id][mkdocstrings.handlers.crystal.items.DocItem.rel_id], but also includes the separator first, e.g. `#bar(x,y)` or `.baz()`"""
         return self.METHOD_SEP + self.name
-
-    @property
-    @abc.abstractmethod
-    def kind(self) -> str:
-        """One of: *instance_method, class_method, macro*.
-
-        Note that instead it's preferred to check `isinstance(obj, DocInstanceMethod)`, etc.
-        """
 
     @property
     def is_abstract(self) -> bool:
@@ -377,7 +369,7 @@ class DocInstanceMethod(DocMethod):
     METHOD_SEP = METHOD_ID_SEP = "#"
 
     @property
-    def kind(self):
+    def kind(self) -> str:
         return "instance_method"
 
 
@@ -387,7 +379,7 @@ class DocClassMethod(DocMethod):
     METHOD_SEP = METHOD_ID_SEP = "."
 
     @property
-    def kind(self):
+    def kind(self) -> str:
         return "class_method"
 
 
@@ -397,14 +389,12 @@ class DocMacro(DocMethod):
     METHOD_ID_SEP = ":"
 
     @property
-    def kind(self):
+    def kind(self) -> str:
         return "macro"
 
 
 class DocConstructor(DocClassMethod):
     """A [DocInstanceMethod][mkdocstrings.handlers.crystal.items.DocInstanceMethod] representing a Crystal macro."""
-
-    _TEMPLATE = "constant.html"
 
 
 class DocMapping(Generic[D]):

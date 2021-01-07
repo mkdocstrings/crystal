@@ -6,7 +6,9 @@
       class="doc doc-heading"
       data-toc-label="{{ obj.name }}">
 
-    <code>{{ obj.name }}</code>
+    <code>
+      {{ obj.name }} = <span style="font-weight: normal">{{ obj.value |code_highlight(language="crystal", inline=True) }}</span>
+    </code>
   </h{{ heading_level }}>
 
   <div class="doc doc-contents {% if root %}first{% endif %}">
