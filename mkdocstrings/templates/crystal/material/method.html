@@ -17,6 +17,6 @@
   </div>
 
   {% if config.show_source_links and obj.location and obj.location.url %}
-    [<a href="{{ obj.location.url }}">View source</a>]
+    <a class="doc-source-link" href="{{ obj.location.url }}">View source</a>
   {% endif %}
 </div>

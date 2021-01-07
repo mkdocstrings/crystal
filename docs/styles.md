@@ -1,0 +1,24 @@
+## Recommended styles
+
+```css
+/* Indentation of sub-items */
+div.doc-contents:not(.first) {
+  padding-left: 15px;
+  border-left: 4px solid rgba(230, 230, 230);
+}
+
+/* Don't capitalize names */
+h5.doc-heading {
+  text-transform: none !important;
+}
+
+/* [View source] links */
+a.doc-source-link::before {
+  content: "[";
+  color: var(--md-typeset-color);
+}
+a.doc-source-link::after {
+  content: "]";
+  color: var(--md-typeset-color);
+}
+```
