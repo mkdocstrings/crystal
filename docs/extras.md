@@ -45,7 +45,7 @@ These are the built-in mogrifier implementations:
 
 [Browse the API exposed by the root `DocType`](api.md).
 
-## Support for [MkDocs "gen-files" plugin](https://github.com/oprypin/mkdocs-gen-files)
+## Support for [MkDocs "gen-files" plugin](https://oprypin.github.io/mkdocs-gen-files)
 
 There's no special support, these just work well together.
 

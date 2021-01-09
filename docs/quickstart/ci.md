@@ -1,15 +1,19 @@
-You can publish the website
+# Continuous build and publishing
 
-```yaml  linenums="1" hl_lines="2 13 17 19 23"
---8<-- "examples/modern/.github/workflow/deploy-docs.yml"
-```
+You can build and publish the website automatically on push using GitHub Pages and GitHub Actions. Here's our recommendation:
+
+???+ example ".github/workflows/deploy-docs.yml"
+    ```yaml  linenums="1" hl_lines="2 13 17 19 23"
+    --8<-- "examples/simple/.github/workflows/deploy-docs.yml"
+    ```
 
 ???+ question "Why configure like this"
-    Crystal Nightly is needed because this plugin relies on some improvements to Crystal's doc generator that haven't made it into a release yet.
-
+    * Do *not* disable the workflow for non-*master* branches or pull requests. It is nice to ensure that the site builds (there can be errors!), instead at the bottom we prevent only the actual *deploy* action from being executed on non-*master*/non-*pushes*.
+    * Crystal Nightly is needed because this plugin relies on some improvements to Crystal's doc generator that haven't made it into a release yet.
+    * Dependencies are installed from `requirements.txt`. Make sure you've [populated it](python-dependencies.md).
 
 !!! tip
     You can freely have a "dev" branch for working on docs that aren't ready for release yet. Then just merge it into the main one when ready.
 
 !!! tip
-    Your docs don't have to be in the same repository as the main code. In fact, the doc site can span several projects! See [Athena's website](https://github.com/oprypin/athena-website) as an example (of particular interest are `mkdocs.yml` (`crystal_docs_flags:`) and `shard*` files.
+    Your docs don't have to be in the same repository as the main code. In fact, the doc site can span several projects! See "Multi-repo setup" [in Showcase](../showcase.md#athena-framework).

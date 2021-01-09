@@ -8,11 +8,11 @@ Crystal language doc generator for [MkDocs][], via [mkdocstrings][].
 $ pip install mkdocstrings-crystal
 ```
 
-[Continue with **quickstart**](quickstart/README.md).
+[Continue with **quickstart**](quickstart/index.md).
 
 ## Introduction
 
-Crystal has [its own easy-to-use generator of API documentation sites](https://crystal-lang.org/reference/using_the_compiler/#crystal-docs), but it's very rigid, as it doesn't attempt to do anything other than API documentation, so [these sites](https://crystal-lang.org/api/) end up being very isolated and prevent the author from presenting some kind of *story* about using their library.
+Crystal has [its own easy-to-use generator of API documentation sites](https://crystal-lang.org/reference/using_the_compiler/#crystal-docs), but it's very rigid, as it doesn't attempt to do anything other than API documentation, so [these sites](https://crystal-lang.org/api/0.35.1/Process.html) end up being very isolated and prevent the author from presenting some kind of *story* about using their library.
 
 Instead, this plugin is all about that *story*. It's very inspiring to look at [Python's documentation for `subprocess`](https://docs.python.org/3/library/subprocess.html), and hard to imagine a world in which this document is just an alphabetic dump of the functions in it.
 
@@ -51,7 +51,9 @@ Then, in any `docs/**/*.md` file, you can **mention a Crystal identifier alone o
 
 -- and in the output this will be replaced with generated API documentation for it, much like Crystal's own doc generator does.
 
-This, of course, happens as part of a normal MkDocs build process:
+Learn more about this syntax: [in *mkdocstrings* in general](https://pawamoy.github.io/mkdocstrings/usage/) (Crystal specifics are below).
+
+The auto-replacement, of course, happens as part of a normal MkDocs build process:
 
 ```console
 $ mkdocs build  # generate from docs/ into site/
@@ -66,7 +68,7 @@ But another powerful feature of this plugin is that you can **[cross-reference](
 
 ## Usage details
 
-We have been talking about seamlessly inserting Crystal documentation, but where is it coming from? The implementation actually still uses `crystal doc` generator but through [its JSON output](https://github.com/crystal-lang/crystal/pull/4746). So the requirement is the same: the source code that the doc comments and signatures are coming from is assumed to be somewhere under the _src/_ directory. If that isn't appropriate, you can select the wanted entry files by passing them to `crystal doc`, as part of [`crystal_docs_flags`](configuration.md#crystal_docs_flags) ([example](https://github.com/oprypin/athena-website/blob/c06906d5933421120c76e15fd6f529eeb5c48221/mkdocs.yml#L33)).
+We have been talking about seamlessly inserting Crystal documentation, but where is it coming from? The implementation actually still uses `crystal doc` generator but through [its JSON output](https://github.com/crystal-lang/crystal/pull/4746). So the requirement is the same: the source code that the doc comments and signatures are coming from is assumed to be somewhere under the _src/_ directory. If that isn't appropriate, you can select the wanted entry files by passing them to `crystal doc`, as part of [`crystal_docs_flags`](configuration.md#crystal_docs_flags) (see "Custom source directories" [in Showcase](showcase.md#athena-framework)).
 
 Continue to [Configuration](configuration.md).
 

@@ -8,6 +8,9 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
+extra_css:
+  - css/mkdocstrings.css
+
 plugins:
   - search
   - gen-files:

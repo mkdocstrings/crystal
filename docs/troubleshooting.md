@@ -18,6 +18,14 @@ Perhaps it's because you made a page `Foo.md` and separately `Foo/Bar.md`. MkDoc
 
 In a deeply nested nav, it is best to stick to naming every file as `index.md` and making it the only one per directory. Then all items get treated equally during sorting. Or you can just define the `nav` yourself explicitly.
 
+## It takes too long to build the site
+
+Yes, it's slow, especially for large codebases. The main thing, though, is that MkDocs was not optimized to handle sites with so so many pages. That is, [until I optimized it](https://github.com/mkdocs/mkdocs/pulls?q=is%3Apr+author%3Aoprypin+profile), but that hasn't made it into a release yet. Expect about a 2x speedup then. Or install the preview now:
+
+```console
+$ pip install -U git+https://github.com/mkdocs/mkdocs.git@refs/pull/2272/head
+```
+
 ## The generated documentation does not look good
 
 Note that only [mkdocs-material](https://squidfunk.github.io/mkdocs-material/) theme is supported.

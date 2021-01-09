@@ -7,6 +7,8 @@ module Foo
   end
 
   # Description of *g*
+  #
+  # See also: `Bar#f`
   def g(bar : Bar)
   end
 end
