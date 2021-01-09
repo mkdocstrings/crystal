@@ -27,7 +27,11 @@ class CrystalCollector(BaseCollector):
     def __init__(self, crystal_docs_flags: Sequence[str] = ()):
         """Create a "collector", reading docs from `crystal doc` in the current directory.
 
+        Normally this should not be instantiated.
+
         When using mkdocstrings-crystal within MkDocs, a plugin can access the instance as `config['plugins']['mkdocstrings'].get_handler('crystal').collector`.
+
+        See [Extras](extras.md).
         """
         command = [
             "crystal",

@@ -1,0 +1,24 @@
+site_name: My Project
+site_url: https://username.github.io/my-project/
+repo_url: https://github.com/username/my-project
+edit_uri: blob/master/docs/
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: crystal
+      watch: [src]
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.magiclink
+  - pymdownx.saneheaders
+  - pymdownx.superfences
+  - deduplicate-toc
+  - toc:
+      permalink: "#"

@@ -1,4 +1,6 @@
 ### ::: mkdocstrings.handlers.crystal.collector.CrystalCollector
+    selection:
+        filters: ["!collect", "!teardown"]
     rendering:
         show_root_full_path: true
 

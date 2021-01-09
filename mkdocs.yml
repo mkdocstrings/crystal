@@ -6,6 +6,8 @@ use_directory_urls: false
 
 theme:
   name: material
+  features:
+    - navigation.expand
   icon:
     repo: fontawesome/brands/github
   palette:
@@ -13,7 +15,7 @@ theme:
     accent: purple
 
 extra_css:
-  - css/mkdocstrings.css
+  - css/style.css
 
 plugins:
   - search
@@ -29,11 +31,31 @@ plugins:
             show_source: false
             show_root_heading: true
             show_root_full_path: false
+  - section-index
 
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.magiclink
   - pymdownx.superfences
   - pymdownx.tabbed
+  - pymdownx.details
+  - pymdownx.snippets:
+      check_paths: true
+  - admonition
+  - def_list
   - toc:
       permalink: "#"
+
+nav:
+  - Introduction: README.md
+  - Quickstart:
+    - quickstart/README.md
+    - Migrate from `crystal doc`: quickstart/migrate.md
+    - Managing Python dependencies: quickstart/python-dependencies.md
+    - CI: quickstart/ci.md
+  - Configuration: configuration.md
+  - Styling: styling.md
+  - Extras: extras.md
+  - Troubleshooting: troubleshooting.md
+  - Introspection API: api.md
+  - Showcase: showcase.md

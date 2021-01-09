@@ -1,7 +1,13 @@
+.highlight .gp { /* Generic.Prompt */
+  user-select: none;
+}
+
 .doc-heading code {
   font-family: inherit !important;
   font-size: inherit;
 }
+
+/* https://pawamoy.github.io/mkdocstrings/handlers/python/#recommended-style-material */
 
 .doc-contents th, .doc-contents td {
   padding: 0.5em 0.8em !important;
