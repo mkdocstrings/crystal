@@ -15,10 +15,10 @@ Here are some websites using this doc generator:
 
 ## Athena Framework
 
-* [Home page](http://beta.athenaframework.org/) ｜ [Website repository](https://github.com/oprypin/athena-website)
-* [**Generated API docs page**](http://beta.athenaframework.org/Serializer/Context/) ｜ [gen_doc_stubs.py](https://github.com/oprypin/athena-website/blob/mkdocstrings/gen_doc_stubs.py)
-* [**Partly inferred nav**](https://github.com/oprypin/athena-website/blob/mkdocstrings/docs/SUMMARY.md)
-* [Custom source directories](https://github.com/oprypin/athena-website/blob/mkdocstrings/mkdocs.yml) ｜ [Multi-repo setup](https://github.com/oprypin/athena-website/blob/mkdocstrings/shard.lock)
+* [Home page](https://athenaframework.org/) ｜ [Website repository](https://github.com/athena-framework/website)
+* [**Generated API docs page**](https://athenaframework.org/Serializer/Context/) ｜ [gen_doc_stubs.py](https://github.com/athena-framework/website/blob/master/gen_doc_stubs.py)
+* [**Partly inferred nav**](https://github.com/athena-framework/website/blob/master/docs/SUMMARY.md)
+* [Custom source directories](https://github.com/athena-framework/website/blob/master/mkdocs.yml) ｜ [Multi-repo setup](https://github.com/athena-framework/website/blob/master/shard.lock)
 
 ## CrSFML
 

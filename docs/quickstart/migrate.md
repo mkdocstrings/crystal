@@ -70,7 +70,7 @@ Add a script that will automatically populate a page for each type that exists i
 
 This script is picked up to run seamlessly as part of the normal site build, because we had configured the [`gen-files` plugin](https://github.com/oprypin/mkdocs-gen-files), which is already explained above.
 
-??? tip
+!!! tip
     Find more advanced examples of such scripts in [Showcase](../showcase.md).
 
 ## Add a normal page
