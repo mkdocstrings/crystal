@@ -269,6 +269,11 @@ class DocAlias(DocType):
         except KeyError:
             return crystal_html.TextWithLinks(self.data["aliased"], ())
 
+    @property
+    def constants(self):
+        # Crystal duplicates constants into aliases, but that's undesirable.
+        return DocMapping(())
+
 
 class DocAnnotation(DocType):
     """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal annotation."""
