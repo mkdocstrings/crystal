@@ -30,7 +30,7 @@ class CrystalRenderer(base.BaseRenderer):
         subconfig = collections.ChainMap(config, self.default_config)
         template = self.env.get_template(data._TEMPLATE)
 
-        with self._monkeypatch_highlight_functions(default_lang="crystal"):
+        with self._monkeypatch_highlight_function(default_lang="crystal"):
             return template.render(
                 config=subconfig,
                 obj=data,
@@ -44,8 +44,10 @@ class CrystalRenderer(base.BaseRenderer):
 
         self._pymdownx_hl = None
         for ext in md.registeredExtensions:
-            if hasattr(ext, "get_pymdownx_highlighter"):
-                self._pymdownx_hl = ext
+            try:
+                self._pymdownx_hl = ext.get_pymdownx_highlighter()
+            except AttributeError:
+                pass
 
         # Disallow raw HTML.
         del md.preprocessors["html_block"]
@@ -92,24 +94,16 @@ class CrystalRenderer(base.BaseRenderer):
             self._md, text, heading_level=heading_level, html_id=html_id
         )
 
-    def _monkeypatch_highlight_functions(self, default_lang: str):
-        """Changes 'codehilite' and 'pymdownx.highlight' extensions to use this lang by default."""
+    def _monkeypatch_highlight_function(self, default_lang: str):
+        """Changes 'pymdownx.highlight' extension to use this lang by default."""
         # Yes, there really isn't a better way. I'd be glad to be proven wrong.
         if self._pymdownx_hl:
-            old = self._pymdownx_hl.get_pymdownx_highlighter()
-            members = {
-                "highlight": lambda self, src="", language="", *args, **kwargs: old.highlight(
-                    self, src, language or default_lang, *args, **kwargs
-                )
-            }
-            subclass = type("Highlighter", (old,), members)
-            return _monkeypatch(self._pymdownx_hl, "get_pymdownx_highlighter", lambda: subclass)
-        else:
-            old = fenced_code.CodeHilite
-            new = lambda src, *args, lang=None, **kwargs: old(
-                src, *args, lang=lang or default_lang, **kwargs
+            old = self._pymdownx_hl.highlight
+            new = lambda self, src="", language="", *args, **kwargs: old(
+                self, src, language or default_lang, *args, **kwargs
             )
-            return _monkeypatch(fenced_code, "CodeHilite", new)
+            return _monkeypatch(self._pymdownx_hl, "highlight", new)
+        return contextlib.nullcontext()
 
 
 @contextlib.contextmanager
