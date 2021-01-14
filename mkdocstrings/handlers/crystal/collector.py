@@ -6,11 +6,17 @@ import shlex
 import subprocess
 from typing import Any, Callable, Iterable, Iterator, Mapping, Sequence, TypeVar, Union
 
+import mkdocs.exceptions
 import mkdocs.utils
 from cached_property import cached_property
 from mkdocstrings.handlers.base import BaseCollector, CollectionError
 
 from .items import DocConstant, DocItem, DocMapping, DocMethod, DocModule, DocType
+
+try:
+    from mkdocs.exceptions import PluginError
+except ImportError:
+    PluginError = SystemExit
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 log.addFilter(mkdocs.utils.warning_filter)
@@ -47,11 +53,19 @@ class CrystalCollector(BaseCollector):
         self._proc = subprocess.Popen(command, stdout=subprocess.PIPE)
         self._collected = collections.Counter()
 
+    # pytype: disable=bad-return-type
     @cached_property
     def root(self) -> DocModule:
         """The top-level namespace, represented as a fake module."""
-        with self._proc:
-            return DocModule(json.load(self._proc.stdout)["program"], None, None)
+        try:
+            with self._proc:
+                return DocModule(json.load(self._proc.stdout)["program"], None, None)
+        finally:
+            if self._proc.returncode:
+                cmd = " ".join(shlex.quote(arg) for arg in self._proc.args)
+                raise PluginError(f"Command `{cmd}` exited with status {self._proc.returncode}")
+
+    # pytype: enable=bad-return-type
 
     def collect(self, identifier: str, config: Mapping[str, Any]) -> "DocView":
         """[Find][mkdocstrings.handlers.crystal.items.DocItem.lookup] an item by its identifier.
