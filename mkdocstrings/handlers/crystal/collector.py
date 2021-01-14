@@ -59,7 +59,9 @@ class CrystalCollector(BaseCollector):
         """The top-level namespace, represented as a fake module."""
         try:
             with self._proc:
-                return DocModule(json.load(self._proc.stdout)["program"], None, None)
+                data = json.load(self._proc.stdout)
+            data["program"]["full_name"] = ""
+            return DocModule(data["program"], None, None)
         finally:
             if self._proc.returncode:
                 cmd = " ".join(shlex.quote(arg) for arg in self._proc.args)
@@ -75,7 +77,9 @@ class CrystalCollector(BaseCollector):
         """
         config = collections.ChainMap(config, self.default_config)
 
-        item = self.root.lookup(identifier)
+        item = self.root
+        if identifier != "::":
+            item = item.lookup(identifier)
         view = DocView(item, config)
         if isinstance(item, DocType):
             self._collected.update((item,))
