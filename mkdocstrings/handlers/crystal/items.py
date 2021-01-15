@@ -317,13 +317,13 @@ class DocMethod(DocItem):
 
         args = [arg["external_name"] for arg in d["args"]]
         if d.get("splat_index") is not None:
-            args[d["splat_index"]] = "*" + args[d["splat_index"]]
+            args[d["splat_index"]] = "*"
         if d.get("double_splat"):
-            args.append("**" + d["double_splat"]["external_name"])
-        if d.get("block_arg"):
+            args.append("**")
+        if d.get("block_arg") or d.get("yields"):
             args.append("&")
 
-        return self.name + "(" + ",".join(args) + ")"
+        return self.name + ("(" + ",".join(args) + ")" if args else "")
 
     @property
     def abs_id(self):
@@ -396,6 +396,10 @@ class DocMacro(DocMethod):
     """A [DocMethod][mkdocstrings.handlers.crystal.items.DocMethod] representing a Crystal macro."""
 
     METHOD_ID_SEP = ":"
+
+    @property
+    def rel_id(self):
+        return self.name
 
     @property
     def kind(self) -> str:
