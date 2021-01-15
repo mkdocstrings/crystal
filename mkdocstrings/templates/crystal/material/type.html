@@ -1,6 +1,7 @@
 {{ log.debug() }}
 
 <div class="doc doc-object doc-type {{ obj.kind }}">
+  {% if obj.parent %}
   <h{{ heading_level }}
       id="{{ obj.abs_id }}"
       class="doc doc-heading"
@@ -11,6 +12,7 @@
       <br/><small>inherits <code>{{ obj.superclass |reference }}</code></small>
     {% endif %}
   </h{{ heading_level }}>
+  {% endif %}
 
   <div class="doc doc-contents {% if root %}first{% endif %}">
     {% if obj.doc %}{{ obj.doc |convert_markdown(obj, heading_level, obj.abs_id) }}{% endif %}

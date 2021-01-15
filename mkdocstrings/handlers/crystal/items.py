@@ -290,7 +290,9 @@ class DocConstant(DocItem):
 
     @property
     def abs_id(self):
-        return (self.parent.abs_id + "::" if self.parent else "") + self.rel_id
+        return (
+            self.parent.abs_id + "::" if self.parent and self.parent.parent else ""
+        ) + self.rel_id
 
     @property
     def kind(self) -> str:
@@ -325,12 +327,14 @@ class DocMethod(DocItem):
 
     @property
     def abs_id(self):
-        return (self.parent.abs_id if self.parent else "") + self.METHOD_ID_SEP + self.rel_id
+        return (
+            self.parent.abs_id + self.METHOD_ID_SEP if self.parent and self.parent.parent else ""
+        ) + self.rel_id
 
     @property
     def short_name(self):
         """Similar to [rel_id][mkdocstrings.handlers.crystal.items.DocItem.rel_id], but also includes the separator first, e.g. `#bar(x,y)` or `.baz()`"""
-        return self.METHOD_SEP + self.name
+        return (self.METHOD_SEP if self.parent and self.parent.parent else "") + self.name
 
     @property
     def is_abstract(self) -> bool:
