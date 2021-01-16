@@ -37,6 +37,9 @@ class CrystalRenderer(base.BaseRenderer):
                 root=True,
             )
 
+    def get_anchor(self, data: DocItem) -> str:
+        return data.abs_id
+
     def update_env(self, md: Markdown, config: dict) -> None:
         md = Markdown(extensions=config["mdx"], extension_configs=config["mdx_configs"])
         self._md = md
