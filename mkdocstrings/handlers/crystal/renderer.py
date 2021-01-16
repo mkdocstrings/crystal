@@ -12,7 +12,6 @@ from markupsafe import Markup
 from mkdocstrings.handlers import base
 
 from . import crystal_html
-from .collector import CrystalCollector
 from .items import DocItem, DocPath
 
 T = TypeVar("T")
@@ -55,7 +54,7 @@ class CrystalRenderer(base.BaseRenderer):
 
         base.ShiftHeadingsExtension().extendMarkdown(md)
         base.PrefixIdsExtension().extendMarkdown(md)
-        XrefExtension(self.collector).extendMarkdown(md)
+        md.treeprocessors.register(_RefInsertingTreeprocessor(md), "mkdocstrings_crystal_xref", 12)
 
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
@@ -114,15 +113,6 @@ def _monkeypatch(obj, attr, func):
         yield
     finally:
         setattr(obj, attr, old)
-
-
-class XrefExtension(Extension):
-    def __init__(self, collector: CrystalCollector, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.collector = collector
-
-    def extendMarkdown(self, md: Markdown) -> None:
-        md.treeprocessors.register(_RefInsertingTreeprocessor(md), "mkdocstrings_crystal_xref", 12)
 
 
 class _RefInsertingTreeprocessor(Treeprocessor):
