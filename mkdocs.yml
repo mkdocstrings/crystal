@@ -1,4 +1,4 @@
-site_name: mkdocstrings-crystal
+site_name: MkDocs Plugins
 site_url: "https://oprypin.github.io/mkdocstrings-crystal"
 repo_url: "https://github.com/oprypin/mkdocstrings-crystal"
 edit_uri: blob/master/docs/
@@ -7,6 +7,7 @@ use_directory_urls: false
 theme:
   name: material
   features:
+    - navigation.tabs
     - navigation.expand
   icon:
     repo: fontawesome/brands/github
@@ -15,10 +16,13 @@ theme:
     accent: purple
 
 extra_css:
-  - css/style.css
+  - assets/style.css
+extra_javascript:
+  - assets/script.js
 
 plugins:
   - search
+  - section-index
   - mkdocstrings:
       watch:
         - mkdocstrings
@@ -31,7 +35,6 @@ plugins:
             show_source: false
             show_root_heading: true
             show_root_full_path: false
-  - section-index
 
 markdown_extensions:
   - pymdownx.highlight
@@ -46,15 +49,20 @@ markdown_extensions:
       permalink: "#"
 
 nav:
-  - Introduction: README.md
-  - Quickstart:
-    - quickstart/index.md
-    - Migrate from `crystal doc`: quickstart/migrate.md
-    - Managing Python dependencies: quickstart/python-dependencies.md
-    - Continuous build and publishing: quickstart/ci.md
-  - Configuration: configuration.md
-  - Styling: styling.md
-  - Extras: extras.md
-  - Troubleshooting: troubleshooting.md
-  - Introspection API: api.md
-  - Showcase: showcase.md
+  - mkdocstrings-crystal:
+    - README.md
+    - Quickstart:
+      - quickstart/index.md
+      - Migrate from `crystal doc`: quickstart/migrate.md
+      - Managing Python dependencies: quickstart/python-dependencies.md
+      - Continuous build and publishing: quickstart/ci.md
+    - Configuration: configuration.md
+    - Styling: styling.md
+    - Extras: extras.md
+    - Troubleshooting: troubleshooting.md
+    - Introspection API: api.md
+    - Showcase: showcase.md
+  - section-index: /mkdocs-section-index/
+  - literate-nav: /mkdocs-literate-nav/
+  - gen-files: /mkdocs-gen-files/
+  - same-dir: /mkdocs-same-dir/
