@@ -2,11 +2,9 @@
 
 ## Types aren't linkified in method signatures or aliases
 
-This works, but you need to use a *nightly* build of Crystal. Crystal has some recent improvements that haven't made it into a release yet (as of 0.35). The plugin needs those improvements, otherwise it gracefully degrades.
+Please make sure you're using the latest Crystal version - 0.36.0 at least. The plugin needs the included improvements, otherwise it gracefully degrades.
 
-If you have Crystal built locally, you might just `export PATH=/full/path/to/crystal/bin:$PATH` (as the plugin is hardcoded to use just `crystal`).
-
-If you don't want to bother, you can opt to just use nightly Crystal [in CI, when the docs get auto-deployed](quickstart/ci.md) and assume that the links will work, even though you don't see them locally.
+Even if you haven't managed to get that version of Crystal locally, you can just rely on [CI auto-deployment](quickstart/ci.md) and assume that the links will work, even though you won't see them locally.
 
 ## The navigation sections look scattered
 

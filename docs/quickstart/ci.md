@@ -3,13 +3,12 @@
 You can build and publish the website automatically on push using GitHub Pages and GitHub Actions. Here's our recommendation:
 
 ???+ example ".github/workflows/deploy-docs.yml"
-    ```yaml  linenums="1" hl_lines="2 13 17 19 23"
+    ```yaml  linenums="1" hl_lines="2 15 17 21"
     --8<-- "examples/simple/.github/workflows/deploy-docs.yml"
     ```
 
 ???+ question "Why configure like this"
     * Do *not* disable the workflow for non-*master* branches or pull requests. It is nice to ensure that the site builds (there can be errors!), instead at the bottom we prevent only the actual *deploy* action from being executed on non-*master*/non-*pushes*.
-    * Crystal Nightly is needed because this plugin relies on some improvements to Crystal's doc generator that haven't made it into a release yet.
     * Dependencies are installed from `requirements.txt`. Make sure you've [populated it](python-dependencies.md).
 
 !!! tip
