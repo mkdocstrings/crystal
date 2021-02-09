@@ -1,6 +1,6 @@
 site_name: MkDocs Plugins
-site_url: "https://oprypin.github.io/mkdocstrings-crystal"
-repo_url: "https://github.com/oprypin/mkdocstrings-crystal"
+site_url: "https://mkdocstrings.github.io/crystal"
+repo_url: "https://github.com/mkdocstrins/crystal"
 edit_uri: blob/master/docs/
 use_directory_urls: false
 
@@ -62,7 +62,7 @@ nav:
     - Troubleshooting: troubleshooting.md
     - Introspection API: api.md
     - Showcase: showcase.md
-  - section-index: /mkdocs-section-index/
-  - literate-nav: /mkdocs-literate-nav/
-  - gen-files: /mkdocs-gen-files/
-  - same-dir: /mkdocs-same-dir/
+  - section-index: https://oprypin.github.io/mkdocs-section-index/
+  - literate-nav: https://oprypin.github.io/mkdocs-literate-nav/
+  - gen-files: https://oprypin.github.io/mkdocs-gen-files/
+  - same-dir: https://oprypin.github.io/mkdocs-same-dir/

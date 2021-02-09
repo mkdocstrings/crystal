@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/mkdocstrings-crystal)](https://pypi.org/project/mkdocstrings-crystal/)
 [![GitHub](https://img.shields.io/github/license/oprypin/mkdocstrings-crystal)](LICENSE.md)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/oprypin/mkdocstrings-crystal/CI)](https://github.com/oprypin/mkdocstrings-crystal/actions?query=event%3Apush+branch%3Amaster)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/oprypin/mkdocstrings-crystal/CI)](https://github.com/mkdocstrings/crystal/actions?query=event%3Apush+branch%3Amaster)
 
 ## Introduction
 
@@ -64,4 +64,4 @@ mkdocs serve  # live preview
 [mkdocs]: https://www.mkdocs.org/
 [mkdocstrings]: https://pawamoy.github.io/mkdocstrings/
 [virtualenv]: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment
-[documentation site]: https://oprypin.github.io/mkdocstrings-crystal/
+[documentation site]: https://mkdocstrings.github.io/crystal/

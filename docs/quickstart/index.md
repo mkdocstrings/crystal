@@ -11,7 +11,7 @@ Hosting on GitHub is also assumed, though that's easy to adapt.
 
 We'll be working from the project's root directory (the one that *contains* `src`).
 
-[View the final file layout](https://github.com/oprypin/mkdocstrings-crystal/tree/master/examples/simple/)
+[View the final file layout](https://github.com/mkdocstrings/crystal/tree/master/examples/simple/)
 
 ## Dependencies
 
