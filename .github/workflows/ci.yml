@@ -33,7 +33,6 @@ jobs:
         with:
           path: .venv
           key: venv-${{matrix.os}}-py${{steps.python.outputs.python-version}}-${{hashFiles('pyproject.toml')}}
-          restore-keys: venv-${{matrix.os}}-py${{steps.python.outputs.python-version}}-
       - name: Create virtualenv
         run: |
           python -m venv .venv
