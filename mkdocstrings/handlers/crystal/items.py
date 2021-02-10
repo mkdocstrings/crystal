@@ -398,10 +398,6 @@ class DocMacro(DocMethod):
     METHOD_ID_SEP = ":"
 
     @property
-    def rel_id(self):
-        return self.name
-
-    @property
     def kind(self) -> str:
         return "macro"
 
