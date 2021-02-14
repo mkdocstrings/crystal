@@ -32,8 +32,8 @@ You can always [customize the styles with CSS](styling.md), but make sure you've
 
 ## MkDocs warns me about links to unfound documentation files
 
-[See documentation of *mkdocstrings*](https://pawamoy.github.io/mkdocstrings/troubleshooting/#mkdocs-warns-me-about-links-to-unfound-documentation-files)
+[See documentation of *mkdocstrings*](https://mkdocstrings.github.io/troubleshooting/#mkdocs-warns-me-about-links-to-unfound-documentation-files)
 
 ## Warning: could not find cross-reference target
 
-[See documentation of *mkdocstrings*](https://pawamoy.github.io/mkdocstrings/troubleshooting/#warning-could-not-find-cross-reference-target)
+[See documentation of *mkdocstrings*](https://mkdocstrings.github.io/troubleshooting/#warning-could-not-find-cross-reference-target)

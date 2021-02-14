@@ -51,7 +51,7 @@ Let's configure [MkDocs][] with *mkdocstrings-crystal*. Add/merge this config as
     :   Activate the upstream *mkdocstrings* plugin and tell it to collect items from Crystal, not Python, by default.
 
     `watch: [src]`
-    :   Watch a directory for [auto-reload](https://pawamoy.github.io/mkdocstrings/usage/#watch-directories). Assuming the sources are under `src/`.
+    :   Watch a directory for [auto-reload](https://mkdocstrings.github.io/usage/#watch-directories). Assuming the sources are under `src/`.
 
     [`pymdownx.*` extensions](https://facelessuser.github.io/pymdown-extensions/)
     :   Python-Markdown is an "old-school" Markdown parser, and these extensions bring the defaults more in line with what people are used to now.

@@ -8,7 +8,7 @@ Here are some websites using this doc generator:
 ## Tourmaline
 
 * [Home page](https://tourmaline.dev/) ｜ [Repository](https://github.com/protoncr/tourmaline)
-* [Textual docs page with generated references](https://tourmaline.dev/usage/features/handlers/) ｜ [**Source**](https://github.com/protoncr/tourmaline/blob/master/docs/usage/features/handlers.md)
+* [**Textual docs page with generated references**](https://tourmaline.dev/usage/features/handlers/) ｜ [**Source**](https://github.com/protoncr/tourmaline/blob/master/docs/usage/features/handlers.md)
 * [Generated API docs page](https://tourmaline.dev/api_reference/Tourmaline/Client/) ｜ [gen_doc_stubs.py](https://github.com/protoncr/tourmaline/blob/master/docs/gen_doc_stubs.py)
 * [Partly inferred nav](https://github.com/protoncr/tourmaline/blob/master/docs/SUMMARY.md)
 * [**Custom styling**](https://github.com/protoncr/tourmaline/blob/master/docs/stylesheets/extra.css)

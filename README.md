@@ -10,6 +10,8 @@
 
 *mkdocstrings-crystal* allows you to insert API documentation (generated from [Crystal][]'s source code and doc comments) as part of any page on a [MkDocs][] site.
 
+[See it in action][showcase].
+
 To install it, run (possibly in a [virtualenv][]):
 
 ```shell
@@ -62,6 +64,7 @@ mkdocs serve  # live preview
 
 [crystal]: https://crystal-lang.org/
 [mkdocs]: https://www.mkdocs.org/
-[mkdocstrings]: https://pawamoy.github.io/mkdocstrings/
+[mkdocstrings]: https://mkdocstrings.github.io/
 [virtualenv]: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment
 [documentation site]: https://mkdocstrings.github.io/crystal/
+[showcase]: https://mkdocstrings.github.io/crystal/showcase.html

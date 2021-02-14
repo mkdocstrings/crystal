@@ -1,6 +1,6 @@
 # mkdocstrings-crystal
 
-Crystal language doc generator for [MkDocs][], via [mkdocstrings][].
+**[Crystal][] language doc generator for [MkDocs][], via [mkdocstrings][].**
 
 ## Installation
 
@@ -8,7 +8,8 @@ Crystal language doc generator for [MkDocs][], via [mkdocstrings][].
 $ pip install mkdocstrings-crystal
 ```
 
-[Continue with **quickstart**](quickstart/index.md).
+[Continue with **quickstart**](quickstart/index.md).  
+Or use [the migration guide](quickstart/migrate.md) for a low-effort transition from `crystal doc`.
 
 ## Introduction
 
@@ -16,7 +17,7 @@ Crystal has [its own easy-to-use generator of API documentation sites](https://c
 
 Instead, this plugin is all about that *story*. It's very inspiring to look at [Python's documentation for `subprocess`](https://docs.python.org/3/library/subprocess.html), and hard to imagine a world in which this document is just an alphabetic dump of the functions in it.
 
-So (matching the [idea behind *mkdocstrings*](https://pawamoy.github.io/mkdocstrings/usage/) but for Crystal), this allows you to just write textual documentation in Markdown and, in the middle of it, mention any identifier of a Crystal type, method etc., and have its API documentation (signature and doc comment) printed out right there.
+So (matching the [idea behind *mkdocstrings*](https://mkdocstrings.github.io/usage/) but for Crystal), this allows you to just write textual documentation in Markdown and, in the middle of it, mention any identifier of a Crystal type, method etc., and have its API documentation (signature and doc comment) printed out right there.
 
 ## Usage
 
@@ -51,7 +52,7 @@ Then, in any `docs/**/*.md` file, you can **mention a Crystal identifier alone o
 
 -- and in the output this will be replaced with generated API documentation for it, much like Crystal's own doc generator does.
 
-Learn more about this syntax: [in *mkdocstrings* in general](https://pawamoy.github.io/mkdocstrings/usage/) (Crystal specifics are below).
+Learn more about this syntax: [in *mkdocstrings* in general](https://mkdocstrings.github.io/usage/) (Crystal specifics are below).
 
 The auto-replacement, of course, happens as part of a normal MkDocs build process:
 
@@ -64,7 +65,7 @@ $ mkdocs serve  # live preview
 
 The syntax for these "callouts" is almost exactly the same as in Crystal's own doc comments. As you may also know, if you **mention an identifier in backticks within a doc comment (e.g. <code>\`SomeClass#some_method\`</code>)**, Crystal's doc generator will cross-link to it. The same also works seamlessly here, and you don't need to change anything (other than possible edge cases).
 
-But another powerful feature of this plugin is that you can **[cross-reference](https://pawamoy.github.io/mkdocstrings/usage/#cross-references) items like this *anywhere* on the site**, not just in doc comments. But the syntax is **`[SomeClass#some_method][]`** instead. Or `[with custom text][SomeClass#some_method]`. Note, though, that currently this cross-reference syntax is quite rigid, and you need to specify the exact absolute identifier as *mkdocstrings-crystal* determines it. To find that out, you could click on the wanted item in the navigation and then copy the anchor part from the URL bar -- the part after (not including) `#`.
+But another powerful feature of this plugin is that you can **[cross-reference](https://mkdocstrings.github.io/usage/#cross-references) items like this *anywhere* on the site**, not just in doc comments. But the syntax is **`[SomeClass#some_method][]`** instead. Or `[with custom text][SomeClass#some_method]`. Note, though, that currently this cross-reference syntax is quite rigid, and you need to specify the exact absolute identifier as *mkdocstrings-crystal* determines it. To find that out, you could click on the wanted item in the navigation and then copy the anchor part from the URL bar -- the part after (not including) `#`.
 
 ## Usage details
 
@@ -73,5 +74,6 @@ We have been talking about seamlessly inserting Crystal documentation, but where
 Continue to [Configuration](configuration.md).
 
 
+[crystal]: https://crystal-lang.org/
 [mkdocs]: https://www.mkdocs.org/
-[mkdocstrings]: https://pawamoy.github.io/mkdocstrings/
+[mkdocstrings]: https://mkdocstrings.github.io/
