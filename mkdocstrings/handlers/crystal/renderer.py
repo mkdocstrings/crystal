@@ -1,4 +1,3 @@
-import collections
 import contextlib
 import xml.etree.ElementTree as etree
 from typing import Optional, TypeVar, Union
@@ -20,13 +19,12 @@ T = TypeVar("T")
 class CrystalRenderer(base.BaseRenderer):
     fallback_theme = "material"
 
-    default_config: dict = {
-        "show_source_links": True,
-        "heading_level": 2,
-    }
-
     def render(self, data: DocItem, config: dict) -> str:
-        subconfig = collections.ChainMap(config, self.default_config)
+        subconfig = {
+            "show_source_links": True,
+            "heading_level": 2,
+            **config,
+        }
         template = self.env.get_template(data._TEMPLATE)
 
         with self._monkeypatch_highlight_function(default_lang="crystal"):

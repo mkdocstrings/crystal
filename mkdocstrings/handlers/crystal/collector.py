@@ -25,11 +25,6 @@ D = TypeVar("D", bound=DocItem)
 
 
 class CrystalCollector(BaseCollector):
-    default_config: dict = {
-        "nested_types": False,
-        "file_filters": True,
-    }
-
     def __init__(self, crystal_docs_flags: Sequence[str] = ()):
         """Create a "collector", reading docs from `crystal doc` in the current directory.
 
@@ -75,7 +70,11 @@ class CrystalCollector(BaseCollector):
         Raises:
             CollectionError: When an item by that identifier couldn't be found.
         """
-        config = collections.ChainMap(config, self.default_config)
+        config = {
+            "nested_types": False,
+            "file_filters": True,
+            **config,
+        }
 
         item = self.root
         if identifier != "::":
