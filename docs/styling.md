@@ -1,8 +1,8 @@
 ## Recommended styles
 
-Adding this styling to your site is **strongly** recommended, otherwise things may not look right. You can, of course, adapt and add more.
+Adding this styling to your site is recommended, otherwise things may not look right. You can, of course, adapt and add more.
 
-!!! example "css/mkdocstrings.css"
+!!! example "docs/css/mkdocstrings.css"
     ```css
     --8<-- "examples/simple/docs/css/mkdocstrings.css"
     ```
@@ -12,6 +12,12 @@ Adding this styling to your site is **strongly** recommended, otherwise things m
     extra_css:
       - css/mkdocstrings.css
     ```
+
+This is in addition to the mandatory style that *mkdocstrings-crystal* already inserts (just for reference):
+
+```css
+--8<-- "mkdocstrings/templates/crystal/material/style.css"
+```
 
 ## Custom styles
 
