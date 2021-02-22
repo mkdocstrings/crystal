@@ -230,7 +230,7 @@ class DocType(DocItem):
     def locations(self) -> Sequence[DocLocation]:
         """The [code locations][mkdocstrings.handlers.crystal.items.DocLocation] over which the definitions of this type span."""
         return [
-            DocLocation(loc["filename"], loc["line_number"], loc["url"])
+            self.root.update_url(DocLocation(loc["filename"], loc["line_number"], loc["url"]))
             for loc in self.data["locations"]
         ]
 
@@ -361,15 +361,17 @@ class DocMethod(DocItem):
         try:
             loc = self.data["location"]
         except KeyError:
-            m = re.fullmatch(
-                r".+?/(?:blob|tree)/[^/]+/(.+)#L(\d+)", self.data.get("source_link") or ""
+            loc = None
+            url = self.data.get("source_link")
+            if url:
+                regex = r"(?P<url>.+?/(?:blob|tree)/[^/]+/(?P<filename>.+)#L(?P<line>\d+))"
+                m = re.fullmatch(regex, url)
+                if m:
+                    loc = m.groupdict()
+        if loc:
+            return self.root.update_url(
+                DocLocation(loc["filename"], loc["line_number"], loc["url"])
             )
-            if m:
-                filename, line = m.groups()
-                return DocLocation(filename, line, self.data.get("source_link"))
-        else:
-            if loc:
-                return DocLocation(loc["filename"], loc["line_number"], loc["url"])
 
 
 class DocInstanceMethod(DocMethod):
