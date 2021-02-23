@@ -13,9 +13,13 @@ nav = mkdocs_gen_files.open('SUMMARY.md', 'a')
 for typ in root.walk_types():
     # Use the file name "Foo/Bar.md"
     filename = '/'.join(typ.abs_id.split('::')) + '.md'
-    # Make a file with the content "::: Foo::Bar\n"
+    # Make a file with the content "# ::: Foo::Bar\n"
     with mkdocs_gen_files.open(filename, 'w') as f:
-        print(f'::: {typ.abs_id}', file=f)
+        print(f'# ::: {typ.abs_id}', file=f)
+
+    # Link to the type itself when clicking the "edit" button on the page
+    if typ.locations:
+        mkdocs_gen_files.set_edit_path(filename, typ.locations[0].url)
 
     # Append to the nav: "    * [Bar](Foo/Bar.md)"
     indent = '    ' * typ.abs_id.count('::')

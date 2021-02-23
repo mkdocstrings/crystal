@@ -123,7 +123,7 @@ But if you make this change by itself, MkDocs will no longer be able to group th
 So the navigation now has to be specified fully explicitly. As we've been generating the stub files, let's also generate the nav file itself. The file `docs/gen_doc_stubs.py` will gain these additions:
 
 ???+ example "docs/gen_doc_stubs.py"
-    ```python hl_lines="10 15 21-22"
+    ```python hl_lines="10 15 25-26"
     --8<-- "examples/migrated/docs/gen_doc_stubs_nav.py"
     ```
 
