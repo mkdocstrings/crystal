@@ -512,3 +512,11 @@ class DocPath:
 
     def __repr__(self) -> str:
         return repr(self.full_name)
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, DocPath):
+            other = other.abs_id
+        return isinstance(other, str) and self.abs_id == other
+
+    def __hash__(self):
+        return hash(self.abs_id)
