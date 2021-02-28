@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mkdocstrings-crystal"
-version = "0.2.2"
+version = "0.3.0"
 description = "Crystal language doc generator for mkdocstrings"
 authors = ["Oleh Prypin <oleh@pryp.in>"]
 license = "MIT"
