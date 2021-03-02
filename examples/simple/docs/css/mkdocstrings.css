@@ -1,3 +1,5 @@
+/* https://mkdocstrings.github.io/crystal/styling.html#recommended-styles */
+
 /* Indent and distinguish sub-items */
 div.doc-contents:not(.first) {
   padding-left: 15px;
