@@ -2,12 +2,13 @@ from typing import Any, Mapping, Optional, Sequence
 
 from mkdocstrings.handlers.base import BaseHandler
 
+from . import inventory
 from .collector import CrystalCollector
 from .renderer import CrystalRenderer
 
 
 class CrystalHandler(BaseHandler):
-    pass
+    load_inventory = staticmethod(inventory.list_object_urls)
 
 
 def get_handler(

@@ -1,7 +1,6 @@
 import collections
 import dataclasses
 import functools
-import json
 import logging
 import os
 import re
@@ -14,6 +13,7 @@ import mkdocs.utils
 from cached_property import cached_property
 from mkdocstrings.handlers.base import BaseCollector, CollectionError
 
+from . import inventory
 from .items import DocConstant, DocItem, DocLocation, DocMapping, DocMethod, DocModule, DocType
 
 try:
@@ -68,9 +68,8 @@ class CrystalCollector(BaseCollector):
         """The top-level namespace, represented as a fake module."""
         try:
             with self._proc:
-                data = json.load(self._proc.stdout)
-            data["program"]["full_name"] = ""
-            root = DocRoot(data["program"], None, None)
+                root = inventory.read(self._proc.stdout)
+            root.__class__ = DocRoot
             root.source_locations = self._source_locations
             return root
         finally:
