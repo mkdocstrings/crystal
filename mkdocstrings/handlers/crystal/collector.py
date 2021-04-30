@@ -148,16 +148,21 @@ class _SourceDestination:
     @classmethod
     @functools.lru_cache(maxsize=None)
     def _shard_version(cls, path: str):
-        file_path = os.path.join(path, "shard.yml")
+        file_path = _find_above(path, "shard.yml")
+        with open(file_path, "rb") as f:
+            m = re.search(rb"^version: *([\S+]+)", f.read(), flags=re.MULTILINE)
+        if not m:
+            raise PluginError(f"`version:` not found in {file_path!r}")
+
+
+def _find_above(path: str, filename: str) -> str:
+    orig_path = path
+    while path:
+        file_path = os.path.join(path, filename)
         if os.path.isfile(file_path):
-            with open(file_path, "rb") as f:
-                m = re.search(rb"^version: *([\S+]+)", f.read(), flags=re.MULTILINE)
-            if not m:
-                raise PluginError(f"`version:` not found in {file_path!r}")
-            return m[1].decode()
-        if not path:
-            raise PluginError(f"'shard.yml' not found anywhere above {path!r}")
-        return cls._shard_version(os.path.dirname(path))
+            return file_path
+        path = os.path.dirname(path)
+    raise PluginError(f"{filename!r} not found anywhere above {os.path.abspath(orig_path)!r}")
 
 
 class DocRoot(DocModule):
