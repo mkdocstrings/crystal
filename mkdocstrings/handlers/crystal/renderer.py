@@ -85,7 +85,7 @@ class CrystalRenderer(base.BaseRenderer):
         except base.CollectionError:
             return text
         else:
-            html = '<span data-mkdocstrings-identifier="{}">{}</span>'
+            html = '<span data-autorefs-optional="{}">{}</span>'
             return Markup(html).format(ref_obj.abs_id, text)
 
     def do_convert_markdown(self, text: str, context: DocItem, heading_level: int, html_id: str):
@@ -139,4 +139,4 @@ class _RefInsertingTreeprocessor(Treeprocessor):
             el.tail = None
             # Put the `code` into the `span`, with a special attribute for mkdocstrings to pick up.
             span.append(el)
-            span.set("data-mkdocstrings-identifier", ref_obj.abs_id)
+            span.set("data-autorefs-optional", ref_obj.abs_id)
