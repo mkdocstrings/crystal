@@ -52,7 +52,6 @@ class CrystalCollector(BaseCollector):
         log.debug("Running `%s`", " ".join(shlex.quote(arg) for arg in command))
 
         self._proc = subprocess.Popen(command, stdout=subprocess.PIPE)
-        self._collected = collections.Counter()
 
         # For unambiguous prefix match: add trailing slash, sort by longest path first.
         self._source_locations = sorted(
@@ -96,29 +95,7 @@ class CrystalCollector(BaseCollector):
         item = self.root
         if identifier != "::":
             item = item.lookup(identifier)
-        view = DocView(item, config)
-        if isinstance(item, DocType):
-            self._collected.update((item,))
-            self._collected.update(view.walk_types())
-        else:
-            self._collected.setdefault(item.parent, 0)
-
-        return view
-
-    def teardown(self):
-        if log.isEnabledFor(logging.DEBUG):
-            mul_collected = ", ".join(
-                typ.abs_id for typ in self.root.walk_types() if self._collected[typ] > 1
-            )
-            if mul_collected:
-                log.debug(
-                    f"These types were put into the documentation more than once: {mul_collected}"
-                )
-            not_collected = ", ".join(
-                typ.abs_id for typ in self.root.walk_types() if typ not in self._collected
-            )
-            if not_collected:
-                log.debug(f"These types were never put into the documentation: {not_collected}")
+        return DocView(item, config)
 
 
 @dataclasses.dataclass
