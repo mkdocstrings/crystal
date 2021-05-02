@@ -48,7 +48,7 @@ class CrystalCollector(BaseCollector):
         ]
         if source_locations:
             command.append("--source-refname=master")
-        command += crystal_docs_flags
+        command += (s.format_map(_crystal_info) for s in crystal_docs_flags)
         log.debug("Running `%s`", " ".join(shlex.quote(arg) for arg in command))
 
         self._proc = subprocess.Popen(command, stdout=subprocess.PIPE)
@@ -129,17 +129,11 @@ class _SourceDestination:
     def substitute(self, location: DocLocation) -> str:
         data = {"file": location.filename[len(self.src_path) :], "line": location.line}
         try:
-            return self.dest_url.format_map(collections.ChainMap(data, self))  # type: ignore
+            return self.dest_url.format_map(collections.ChainMap(data, _DictAccess(self), _crystal_info))  # type: ignore
         except KeyError as e:
             raise PluginError(
                 f"The source_locations template {self.dest_url!r} did not resolve correctly: {e}"
             )
-
-    def __getitem__(self, key):
-        try:
-            return getattr(self, key)
-        except AttributeError as e:
-            raise KeyError(str(e))
 
     @property
     def shard_version(self):
@@ -163,6 +157,36 @@ def _find_above(path: str, filename: str) -> str:
             return file_path
         path = os.path.dirname(path)
     raise PluginError(f"{filename!r} not found anywhere above {os.path.abspath(orig_path)!r}")
+
+
+class _CrystalInfo:
+    @cached_property
+    def crystal_version(self) -> str:
+        return subprocess.check_output(
+            ["crystal", "env", "CRYSTAL_VERSION"], encoding="ascii"
+        ).rstrip()
+
+    @cached_property
+    def crystal_src(self):
+        out = subprocess.check_output(["crystal", "env", "CRYSTAL_PATH"], text=True).rstrip()
+        for path in out.split(os.pathsep):
+            if os.path.isfile(os.path.join(path, "prelude.cr")):
+                return os.path.relpath(path)
+        raise PluginError(f"Crystal sources not found anywhere in CRYSTAL_PATH={out!r}")
+
+
+class _DictAccess:
+    def __init__(self, obj):
+        self.obj = obj
+
+    def __getitem__(self, key):
+        try:
+            return getattr(self.obj, key)
+        except AttributeError as e:
+            raise KeyError(f"Missing key: {e}")
+
+
+_crystal_info = _DictAccess(_CrystalInfo())
 
 
 class DocRoot(DocModule):
