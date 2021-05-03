@@ -23,7 +23,7 @@ class DocItem(metaclass=abc.ABCMeta):
     def __init__(self, data: Mapping[str, Any], parent: Optional[DocItem], root: Optional[DocType]):
         self.data = data
         self.parent = parent
-        self.root = root or self
+        self.root = root or self  # type: ignore
 
     @property
     def name(self) -> str:
