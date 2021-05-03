@@ -17,6 +17,7 @@ deduplicate-toc = "mkdocstrings.handlers.crystal.deduplicate_toc:DeduplicateTocE
 [tool.poetry.dependencies]
 python = "^3.7"
 mkdocstrings = "^0.15.0"
+markdown-callouts = "^0.1.0"
 markupsafe = "^1.1.1"
 cached-property = "^1.5.2"
 Jinja2 = "^2.11.2"

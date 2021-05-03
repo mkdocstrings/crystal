@@ -3,6 +3,7 @@ import xml.etree.ElementTree as etree
 from typing import Optional, TypeVar, Union
 
 import jinja2
+import markdown_callouts
 from markdown import Markdown  # type: ignore
 from markdown.extensions import Extension, fenced_code  # type: ignore
 from markdown.treeprocessors import Treeprocessor
@@ -54,6 +55,7 @@ class CrystalRenderer(base.BaseRenderer):
         del md.inlinePatterns["html"]
 
         md.treeprocessors.register(_RefInsertingTreeprocessor(md), "mkdocstrings_crystal_xref", 12)
+        markdown_callouts.CalloutsExtension().extendMarkdown(md)
 
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
