@@ -12,5 +12,5 @@ with_groups() {
 "$@" isort -q mkdocstrings tests
 "$@" black -q mkdocstrings tests
 "$@" pytest -q
-python -c 'import sys, os; sys.exit((3,8) <= sys.version_info < (3,9) and os.name == "posix")' ||
+python -c 'import sys, os; sys.exit((3,8) <= sys.version_info < (3,10) and os.name == "posix")' ||
 "$@" pytype mkdocstrings

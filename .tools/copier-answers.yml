@@ -1,0 +1,13 @@
+_commit: a2c083636
+_src_path: gh:oprypin/py-library-template
+copyright_date: 2020
+min_python_version: '3.7'
+mkdocs: true
+project_description: Crystal language doc generator for MkDocs, via mkdocstrings
+project_name: mkdocstrings-crystal
+pytest: true
+python_distribution_name: mkdocstrings-crystal
+python_import_name: mkdocstrings
+pytype: true
+repository_name: mkdocstrings/crystal
+

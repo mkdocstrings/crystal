@@ -1,4 +1,5 @@
-site_name: mkdocstrings-crystal
+site_name: "mkdocstrings-crystal"
+site_description: "Crystal language doc generator for MkDocs, via mkdocstrings"
 site_url: "https://mkdocstrings.github.io/crystal"
 repo_url: "https://github.com/mkdocstrings/crystal"
 edit_uri: blob/master/docs/
