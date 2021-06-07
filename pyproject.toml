@@ -20,7 +20,7 @@ mkdocstrings = ">=0.15.0"
 markdown-callouts = ">=0.1.0"
 mkdocs-autorefs = ">=0.2.0"
 markupsafe = ">=1.1.1, <3.0"
-cached-property = "^1.5.2"
+cached-property = "^1.5.2; python_version<'3.8'"
 Jinja2 = ">=2.11.2, <4.0"
 
 [tool.poetry.dev-dependencies]

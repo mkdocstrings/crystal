@@ -6,7 +6,10 @@ import dataclasses
 import re
 from typing import Any, Generic, Iterator, Mapping, Optional, Sequence, TypeVar, Union
 
-from cached_property import cached_property
+try:
+    from functools import cached_property
+except ImportError:
+    from cached_property import cached_property
 from mkdocstrings.handlers.base import CollectionError
 
 from . import crystal_html
