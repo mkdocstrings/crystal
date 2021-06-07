@@ -15,7 +15,7 @@ def get_handler(
     theme: str,
     custom_templates: Optional[str] = None,
     crystal_docs_flags: Sequence[str] = (),
-    source_locations: Mapping[str, str] = (),
+    source_locations: Mapping[str, str] = {},
     **config: Any
 ) -> CrystalHandler:
     collector = CrystalCollector(

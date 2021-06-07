@@ -6,7 +6,7 @@ import os
 import re
 import shlex
 import subprocess
-from typing import Any, Callable, Iterable, Iterator, List, Mapping, Sequence, TypeVar, Union
+from typing import Any, Callable, Iterable, Iterator, List, Mapping, Sequence, TypeVar, Union, cast
 
 import mkdocs.exceptions
 import mkdocs.utils
@@ -29,7 +29,7 @@ D = TypeVar("D", bound=DocItem)
 
 class CrystalCollector(BaseCollector):
     def __init__(
-        self, crystal_docs_flags: Sequence[str] = (), source_locations: Mapping[str, str] = ()
+        self, crystal_docs_flags: Sequence[str] = (), source_locations: Mapping[str, str] = {}
     ):
         """Create a "collector", reading docs from `crystal doc` in the current directory.
 
@@ -190,7 +190,7 @@ class DocView:
         return val
 
     def walk_types(self) -> Iterator[DocType]:
-        types = self.types  # type: DocMapping[DocType]
+        types = cast(DocMapping[DocType], self.types)
         for typ in types:
             yield typ
             yield from typ.walk_types()
