@@ -48,7 +48,8 @@
         {% endif %}
 
         {% for title, sub in [
-            ("Class methods", obj.class_methods + obj.constructors),
+            ("Constructors", obj.constructors),
+            ("Class methods", obj.class_methods),
             ("Methods", obj.instance_methods),
             ("Macros", obj.macros),
         ] %}
