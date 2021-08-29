@@ -1,6 +1,7 @@
 import itertools
 import json
 import posixpath
+from typing import cast
 
 from .items import DocModule
 
@@ -8,7 +9,7 @@ from .items import DocModule
 def read(file) -> DocModule:
     data = json.load(file)
     data["program"]["full_name"] = ""
-    return DocModule(data["program"], None, None)
+    return cast(DocModule, DocModule(data["program"], None, None))
 
 
 def list_objects(obj):

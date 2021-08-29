@@ -129,7 +129,7 @@ class DocType(DocItem):
 
     _TEMPLATE = "type.html"
 
-    def __new__(cls, data: Mapping[str, Any] = None, *args, **kwargs) -> DocType:
+    def __new__(cls, data: Optional[Mapping[str, Any]] = None, *args, **kwargs) -> DocType:
         """Based on Crystal's JSON, create an object of an appropriate subclass of DocType"""
         if cls is DocType:
             try:

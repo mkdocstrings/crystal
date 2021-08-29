@@ -1,11 +1,11 @@
 import collections
 import html.parser
 import io
-from typing import Callable, List, Sequence, Tuple
+from typing import Callable, Iterable, List, Sequence, Tuple
 
 from markupsafe import Markup, escape
 
-LinkTokens = Sequence[Tuple[int, int, str]]
+LinkToken = Tuple[int, int, str]
 
 
 class TextWithLinks(collections.UserString):
@@ -16,10 +16,10 @@ class TextWithLinks(collections.UserString):
     The link information is currently for internal use only.
     """
 
-    tokens: LinkTokens
+    tokens: Sequence[LinkToken]
     """The list of embedded links."""
 
-    def __init__(self, string, tokens: LinkTokens):
+    def __init__(self, string, tokens: Sequence[LinkToken]):
         super().__init__(string)
         self.tokens = tokens
 
@@ -34,7 +34,7 @@ def parse_crystal_html(crystal_html: str) -> TextWithLinks:
 
 
 def linkify_highlighted_html(
-    pygments_html: str, html_tokens: LinkTokens, make_link: Callable[[str, str], str]
+    pygments_html: str, html_tokens: Sequence[LinkToken], make_link: Callable[[str, str], str]
 ) -> str:
     pygments_parser = _PygmentsHTMLHandler(html_tokens, make_link)
     pygments_parser.feed(pygments_html)
@@ -45,7 +45,7 @@ class _CrystalHTMLHandler(html.parser.HTMLParser):
     def __init__(self):
         super().__init__()
         self.text = io.StringIO()
-        self.tokens: LinkTokens = []
+        self.tokens: List[LinkToken] = []
         self._link_starts: List[Tuple[int, str]] = []
 
     def handle_starttag(self, tag, attrs):
@@ -71,18 +71,19 @@ class _CrystalHTMLHandler(html.parser.HTMLParser):
 
 
 class _PygmentsHTMLHandler(html.parser.HTMLParser):
-    def __init__(self, tokens: LinkTokens, make_link: Callable[[str, str], str]):
+    def __init__(self, tokens: Iterable[LinkToken], make_link: Callable[[str, str], str]):
         super().__init__()
-        self.tokens = tokens
+        self.tokens = iter(tokens)
         self.make_link = make_link
 
+        self.token = next(self.tokens, None)
         self.pos = 0
         self.html = io.StringIO()
         self.inlink: Optional[int] = None
 
     def handle_starttag(self, tag, attrs):
         if tag == "span" and self.inlink is None:
-            if self.tokens and self.tokens[0][0] <= self.pos:
+            if self.token and self.token[0] <= self.pos:
                 self.inlink = self.html.tell()
 
         if self.inlink is None:
@@ -94,10 +95,12 @@ class _PygmentsHTMLHandler(html.parser.HTMLParser):
             self.html.write(f"</{tag}>")
 
         if tag == "span" and self.inlink is not None:
-            if self.tokens and self.tokens[0][1] <= self.pos:
+            if self.token and self.token[1] <= self.pos:
                 self.html.seek(self.inlink)
                 subhtml = Markup(self.html.read())
-                subhtml = self.make_link(self.tokens.pop(0)[2], subhtml)
+                subhtml = self.make_link(self.token[2], subhtml)
+                self.token = next(self.tokens, None)
+
                 self.html.seek(self.inlink)
                 self.html.truncate()
                 self.html.write(subhtml)
