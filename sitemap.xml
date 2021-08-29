@@ -2,57 +2,57 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://mkdocstrings.github.io/crystal/index.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/api.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/configuration.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/extras.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/showcase.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/styling.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/troubleshooting.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/quickstart/index.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/quickstart/ci.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/quickstart/migrate.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://mkdocstrings.github.io/crystal/quickstart/python-dependencies.html</loc>
-         <lastmod>2021-07-14</lastmod>
+         <lastmod>2021-08-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
