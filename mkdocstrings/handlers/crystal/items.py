@@ -10,6 +10,7 @@ try:
     from functools import cached_property
 except ImportError:
     from cached_property import cached_property
+
 from mkdocstrings.handlers.base import CollectionError
 
 from . import crystal_html
@@ -46,9 +47,9 @@ class DocItem(metaclass=abc.ABCMeta):
         return self.data["id"]
 
     @property
-    def doc(self) -> str:
+    def doc(self) -> Optional[str]:
         """The doc comment of this item."""
-        return self.data["doc"]
+        return self.data.get("doc")
 
     @classmethod
     def _properties(cls):
@@ -169,65 +170,69 @@ class DocType(DocItem):
     @cached_property
     def constants(self) -> DocMapping[DocConstant]:
         """The constants (or enum members) within this type."""
-        return DocMapping([DocConstant(x, self, self.root) for x in self.data["constants"]])
+        return DocMapping([DocConstant(x, self, self.root) for x in self.data.get("constants", ())])
 
     @cached_property
     def instance_methods(self) -> DocMapping[DocInstanceMethod]:
         """The instance methods within this type."""
         return DocMapping(
-            [DocInstanceMethod(x, self, self.root) for x in self.data["instance_methods"]]
+            [DocInstanceMethod(x, self, self.root) for x in self.data.get("instance_methods", ())]
         )
 
     @cached_property
     def class_methods(self) -> DocMapping[DocClassMethod]:
         """The class methods within this type."""
-        return DocMapping([DocClassMethod(x, self, self.root) for x in self.data["class_methods"]])
+        return DocMapping(
+            [DocClassMethod(x, self, self.root) for x in self.data.get("class_methods", ())]
+        )
 
     @cached_property
     def constructors(self) -> DocMapping[DocConstructor]:
         """The constructors within this type."""
-        return DocMapping([DocConstructor(x, self, self.root) for x in self.data["constructors"]])
+        return DocMapping(
+            [DocConstructor(x, self, self.root) for x in self.data.get("constructors", ())]
+        )
 
     @cached_property
     def macros(self) -> DocMapping[DocMacro]:
         """The macros within this type."""
-        return DocMapping([DocMacro(x, self, self.root) for x in self.data["macros"]])
+        return DocMapping([DocMacro(x, self, self.root) for x in self.data.get("macros", ())])
 
     @cached_property
     def types(self) -> DocMapping[DocType]:
         """The types nested in this type as a namespace."""
-        return DocMapping([DocType(x, self, self.root) for x in self.data["types"]])
+        return DocMapping([DocType(x, self, self.root) for x in self.data.get("types", ())])
 
     @cached_property
     def superclass(self) -> Optional[DocPath]:
         """The possible superclass of this type."""
-        if self.data["superclass"] is not None:
+        if self.data.get("superclass") is not None:
             return DocPath(self.data["superclass"], self)
 
     @cached_property
     def ancestors(self) -> Sequence[DocPath]:
         """The modules and classes this type inherited."""
-        return [DocPath(x, self) for x in self.data["ancestors"]]
+        return [DocPath(x, self) for x in self.data.get("ancestors", ())]
 
     @cached_property
     def included_modules(self) -> Sequence[DocPath]:
         """The modules that this type included."""
-        return [DocPath(x, self) for x in self.data["included_modules"]]
+        return [DocPath(x, self) for x in self.data.get("included_modules", ())]
 
     @cached_property
     def extended_modules(self) -> Sequence[DocPath]:
         """The modules that this type extended."""
-        return [DocPath(x, self) for x in self.data["extended_modules"]]
+        return [DocPath(x, self) for x in self.data.get("extended_modules", ())]
 
     @cached_property
     def subclasses(self) -> Sequence[DocPath]:
         """Known subclasses of this type."""
-        return [DocPath(x, self) for x in self.data["subclasses"]]
+        return [DocPath(x, self) for x in self.data.get("subclasses", ())]
 
     @cached_property
     def including_types(self) -> Sequence[DocPath]:
         """Known types that include this type."""
-        return [DocPath(x, self) for x in self.data["including_types"]]
+        return [DocPath(x, self) for x in self.data.get("including_types", ())]
 
     @cached_property
     def locations(self) -> Sequence[DocLocation]:
@@ -318,7 +323,7 @@ class DocMethod(DocItem):
     def rel_id(self):
         d = self.data["def"]
 
-        args = [arg["external_name"] for arg in d["args"]]
+        args = [arg.get("external_name", arg["name"]) for arg in d.get("args", ())]
         if d.get("splat_index") is not None:
             args[d["splat_index"]] = "*"
         if d.get("double_splat"):
@@ -342,7 +347,7 @@ class DocMethod(DocItem):
     @property
     def is_abstract(self) -> bool:
         """Whether this method is abstract."""
-        return self.data["abstract"]
+        return bool(self.data.get("abstract"))
 
     @cached_property
     def args_string(self) -> crystal_html.TextWithLinks:
@@ -354,17 +359,15 @@ class DocMethod(DocItem):
         try:
             html = self.data["args_html"]
         except KeyError:
-            html = self.data["args_string"]
+            html = self.data.get("args_string", "")
         return crystal_html.parse_crystal_html(html)
 
     @cached_property
     def location(self) -> Optional[DocLocation]:
         """[Code location][mkdocstrings.handlers.crystal.items.DocLocation] of this method. Can be `None` if unknown."""
         # https://github.com/crystal-lang/crystal/pull/10122
-        try:
-            loc = self.data["location"]
-        except KeyError:
-            loc = None
+        loc = self.data.get("location")
+        if loc is None:
             url = self.data.get("source_link")
             if url:
                 regex = r"(?P<url>.+?/(?:blob|tree)/[^/]+/(?P<filename>.+)#L(?P<line>\d+))"
