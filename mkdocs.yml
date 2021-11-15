@@ -41,6 +41,7 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.snippets:
       check_paths: true
+  - callouts
   - admonition
   - def_list
   - toc:

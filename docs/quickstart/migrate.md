@@ -23,10 +23,9 @@ $ pip install mkdocs-material mkdocstrings-crystal mkdocs-gen-files mkdocs-liter
 
 This assumes you have [Python][] installed, with `pip` available.
 
-!!! tip
-    You might want to install these in a [virtualenv][] (i.e. localized just to this project). Otherwise, they go to `~/.local/lib/python*`.
-
-    And check out how to **[manage Python dependencies](python-dependencies.md)** long-term.
+> TIP: You might want to install these in a [virtualenv][] (i.e. localized just to this project). Otherwise, they go to `~/.local/lib/python*`.
+>
+> And check out how to **[manage Python dependencies](python-dependencies.md)** long-term.
 
 ## Base config
 
@@ -56,8 +55,7 @@ Let's configure [MkDocs][] with *mkdocstrings-crystal*. Add/merge this config as
     `extra_css`
     :   Don't forget to copy and include the [recommended styles](../styling.md#recommended-styles).
 
-!!! important
-    The "literate-nav" plugin must appear *before* "section-index" in the list, because it overwrites the nav.
+IMPORTANT: The "literate-nav" plugin must appear *before* "section-index" in the list, because it overwrites the nav.
 
 ## Generate doc stub pages
 

@@ -4,8 +4,7 @@ There are countless ways to do it, but this document is nice for people not fami
 
 This assumes you have [Python][] installed, with `pip` available.
 
-!!! note
-    Of course, you can just always run a bare `pip install` (without versions), but dependencies can break from under you with upgrades.
+NOTE: Of course, you can just always run a bare `pip install` (without versions), but dependencies can break from under you with upgrades.
 
 We suggest to *lock* all dependencies' versions (recursively), so the same ones are always used.
 
@@ -22,8 +21,7 @@ Install the [pip-compile][] tool:
 $ pip install pip-tools
 ```
 
-!!! note
-    This is needed only to manage the lock files; it won't be a permanent dependency.
+NOTE: This is needed only to manage the lock files; it won't be a permanent dependency.
 
 And run it:
 
@@ -46,11 +44,9 @@ Now anyone ([including automation](ci.md)) can install the exact same dependenci
 $ pip install -r requirements.txt
 ```
 
-!!! tip
-    If you'll be maintaining several projects with different dependencies, you might want to install packages in a [virtualenv][] (effectively localized just to this project's folder).
+TIP: If you'll be maintaining several projects with different dependencies, you might want to install packages in a [virtualenv][] (effectively localized just to this project's folder).
 
-!!! important
-    Both `requirements.in` and `requirements.txt` should be checked into source control.
+IMPORTANT: Both `requirements.in` and `requirements.txt` should be checked into source control.
 
 Depending on the layout of project, you have many options where to store those files:
 

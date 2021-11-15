@@ -41,23 +41,17 @@ In addition to the [usual admonition styles](https://squidfunk.github.io/mkdocs-
 }
 </style>
 
-!!! todo
-    `TODO: ` `!!! todo`
+TODO: `TODO: ` `!!! todo`
 
-!!! note
-    `NOTE: ` `!!! note`
+NOTE: `NOTE: ` `!!! note`
 
-!!! bug
-    `BUG: ` `!!! bug`
+BUG: `BUG: ` `!!! bug`
 
-!!! fixme
-    `FIXME: ` `!!! fixme`
+FIXME: `FIXME: ` `!!! fixme`
 
-!!! deprecated
-    `DEPRECATED: ` `!!! deprecated`
+DEPRECATED: `DEPRECATED: ` `!!! deprecated`
 
-!!! optimize
-    `OPTIMIZE: ` `!!! optimize`
+OPTIMIZE: `OPTIMIZE: ` `!!! optimize`
 
 Both the default styles and the extra styles work with both the ["callouts" extension][] (write them in all-uppercase) and the ["admonition" extension][] (write them in all-lowercase).
 

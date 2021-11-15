@@ -3,3 +3,4 @@ mkdocs-material>=7.1.4
 mkdocs-section-index>=0.3.0
 mkdocstrings>=0.15.0
 pymdown-extensions>=8.2
+markdown-callouts>=0.2

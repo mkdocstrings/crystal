@@ -23,10 +23,9 @@ $ pip install mkdocs-material mkdocstrings-crystal
 
 This assumes you have [Python][] installed, with `pip` available.
 
-!!! tip
-    You might want to install these in a [virtualenv][] (i.e. localized just to this project).
-
-    And check out how to **[manage Python dependencies](python-dependencies.md)** long-term.
+> TIP: You might want to install these in a [virtualenv][] (i.e. localized just to this project).
+>
+> And check out how to **[manage Python dependencies](python-dependencies.md)** long-term.
 
 ## Base config
 
