@@ -112,17 +112,18 @@ class _SourceDestination:
             )
 
     @property
-    def shard_version(self):
+    def shard_version(self) -> str:
         return self._shard_version(os.path.dirname(self.src_path))
 
     @classmethod
     @functools.lru_cache(maxsize=None)
-    def _shard_version(cls, path: str):
+    def _shard_version(cls, path: str) -> str:
         file_path = _find_above(path, "shard.yml")
         with open(file_path, "rb") as f:
             m = re.search(rb"^version: *([\S+]+)", f.read(), flags=re.MULTILINE)
         if not m:
             raise PluginError(f"`version:` not found in {file_path!r}")
+        return m[1].decode()
 
 
 def _find_above(path: str, filename: str) -> str:
@@ -143,7 +144,7 @@ class _CrystalInfo:
         ).rstrip()
 
     @cached_property
-    def crystal_src(self):
+    def crystal_src(self) -> str:
         out = subprocess.check_output(["crystal", "env", "CRYSTAL_PATH"], text=True).rstrip()
         for path in out.split(os.pathsep):
             if os.path.isfile(os.path.join(path, "prelude.cr")):
