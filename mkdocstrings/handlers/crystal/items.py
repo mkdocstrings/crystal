@@ -293,11 +293,7 @@ class DocConstant(DocItem):
     _TEMPLATE = "constant.html"
 
     @property
-    def full_name(self):
-        return (self.parent.full_name + "::" if self.parent else "") + self.name
-
-    @property
-    def abs_id(self):
+    def abs_id(self) -> str:
         return (
             self.parent.abs_id + "::" if self.parent and self.parent.parent else ""
         ) + self.rel_id

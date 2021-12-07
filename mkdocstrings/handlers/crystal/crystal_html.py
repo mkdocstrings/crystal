@@ -1,7 +1,7 @@
 import collections
 import html.parser
 import io
-from typing import Callable, Iterable, List, Sequence, Tuple
+from typing import Callable, Iterable, List, Optional, Sequence, Tuple
 
 from markupsafe import Markup, escape
 
