@@ -3,9 +3,7 @@
 <div class="doc doc-object doc-method doc-{{ obj.kind }}">
   {% filter heading(heading_level, id=obj.abs_id, class="doc doc-heading", toc_label=obj.short_name) %}
     {% if obj.is_abstract %}<small style="font-weight: normal">abstract</small> {% endif %}
-    <code>
-      {{ obj.short_name }}<span style="font-weight: normal">{{ obj.args_string |code_highlight(language="crystal", inline=True) }}</span>
-    </code>
+    <code>{{ obj.short_name }}<span style="font-weight: normal">{{ obj.args_string |code_highlight(language="crystal", inline=True) }}</span></code>
   {% endfilter %}
 
   <div class="doc doc-contents {% if root %}first{% endif %}">

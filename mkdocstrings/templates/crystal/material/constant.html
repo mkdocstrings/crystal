@@ -2,9 +2,7 @@
 
 <div class="doc doc-object doc-{{ obj.kind }}">
   {% filter heading(heading_level, id=obj.abs_id, class="doc doc-heading", toc_label=obj.name) %}
-    <code>
-      {{ obj.name }} = <span style="font-weight: normal">{{ obj.value |code_highlight(language="crystal", inline=True) }}</span>
-    </code>
+    <code>{{ obj.name }} = <span style="font-weight: normal">{{ obj.value |code_highlight(language="crystal", inline=True) }}</span></code>
   {% endfilter %}
 
   <div class="doc doc-contents {% if root %}first{% endif %}">
