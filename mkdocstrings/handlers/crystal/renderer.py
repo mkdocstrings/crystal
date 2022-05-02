@@ -66,13 +66,20 @@ class CrystalRenderer(base.BaseRenderer):
         self.env.filters["convert_markdown"] = self.do_convert_markdown
         self.env.filters["reference"] = self.do_reference
 
-    def do_code_highlight(self, code, **kwargs) -> str:
+    def do_code_highlight(self, code, *, title: str = "", **kwargs) -> str:
         text = str(code)
         stext = text.lstrip()
         indent = text[: len(text) - len(stext)]
-        html = indent + self.env.filters["highlight"](stext, **kwargs)
+        html = self.env.filters["highlight"](stext, **kwargs)
+        # HACK: Replace the end of the first tag with injected content.
+        tag_end = Markup(">")
+        if indent:
+            html = html.replace(tag_end, tag_end + indent, 1)
         if isinstance(code, crystal_html.TextWithLinks):
             html = crystal_html.linkify_highlighted_html(html, code.tokens, self.do_reference)
+        if title:
+            prefix = Markup('<span class="doc-title">{}</span>').format(title)
+            html = html.replace(tag_end, tag_end + prefix, 1)
         return html
 
     def do_reference(self, path: Union[str, DocPath], text: Optional[str] = None) -> str:

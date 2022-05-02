@@ -2,12 +2,12 @@
 
 <div class="doc doc-object doc-type {{ obj.kind }}">
   {% if obj.parent %}
-  {% filter heading(heading_level, id=obj.abs_id, class="doc doc-heading", toc_label=obj.name) %}
+  {% filter heading(heading_level, id=obj.abs_id, class="doc doc-heading", toc_label=obj.name) -%}
     {% if obj.is_abstract %}abstract {% endif %}{{ obj.kind }} <code>{{ obj.full_name }}</code>
     {% if obj.superclass %}
       <br/><small>inherits <code>{{ obj.superclass |reference }}</code></small>
     {% endif %}
-  {% endfilter %}
+  {%- endfilter %}
   {% endif %}
 
   <div class="doc doc-contents {% if root %}first{% endif %}">
