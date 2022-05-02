@@ -3,6 +3,10 @@ h5.doc-heading {
   text-transform: none !important;
 }
 
+.doc-title {
+  font-weight: bold;
+}
+
 /* [View source] links don't have brackets by default */
 a.doc-source-link::before {
   content: "[";
