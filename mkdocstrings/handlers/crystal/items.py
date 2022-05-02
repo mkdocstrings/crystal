@@ -346,7 +346,7 @@ class DocMethod(DocItem):
         return bool(self.data.get("abstract"))
 
     @cached_property
-    def args_string(self) -> crystal_html.TextWithLinks:
+    def args_string(self) -> str:
         """[A rich string][mkdocstrings.handlers.crystal.crystal_html.TextWithLinks] with the method's parameters.
 
         e.g. `(foo : Bar) : Baz`
@@ -355,7 +355,11 @@ class DocMethod(DocItem):
         try:
             html = self.data["args_html"]
         except KeyError:
-            html = self.data.get("args_string", "")
+            html = self.data.get("args_string")
+            if html is None:
+                # https://github.com/crystal-lang/crystal/issues/12043
+                ret = self.data["def"].get("return_type", "")
+                return ret and " : " + ret
         return crystal_html.parse_crystal_html(html)
 
     @cached_property
