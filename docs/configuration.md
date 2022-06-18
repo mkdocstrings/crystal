@@ -16,7 +16,7 @@ A list of command line arguments to pass to `crystal doc`. Mainly used to choose
 :    Set to `true` to also recursively render all `Foo::Sub::Types` whenever rendering a given class `Foo`.
 
 `file_filters:` [list of strings]
-:    If a particular module spans over several files, you might want to choose to render only the sub-items (see `nested_types`) that came from a particular file. These patterns are regular expressions (not anchored) applied to the file path. Negating the patterns is done by starting it with `!` (which is then excluded from the following regex). This is very similar to [what's done in *mkdocstrings*](https://mkdocstrings.github.io/reference/handlers/python/#mkdocstrings.handlers.python.PythonCollector.default_config)
+:    If a particular module spans over several files, you might want to choose to render only the sub-items (see `nested_types`) that came from a particular file. These patterns are regular expressions (not anchored) applied to the file path. Negating the patterns is done by starting it with `!` (which is then excluded from the following regex). This is very similar to [what's done in *mkdocstrings*](https://mkdocstrings.github.io/python/reference/mkdocstrings_handlers/python/handler/#mkdocstrings_handlers.python.handler.PythonHandler.default_config)
 
 ### `rendering:`
 
