@@ -80,7 +80,7 @@ class CrystalCollector(BaseCollector):
     # pytype: enable=bad-return-type
 
     def collect(self, identifier: str, config: Mapping[str, Any]) -> "DocView":
-        """[Find][mkdocstrings.handlers.crystal.items.DocItem.lookup] an item by its identifier.
+        """[Find][mkdocstrings_handlers.crystal.items.DocItem.lookup] an item by its identifier.
 
         Raises:
             CollectionError: When an item by that identifier couldn't be found.

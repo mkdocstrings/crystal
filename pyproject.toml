@@ -8,15 +8,15 @@ repository = "https://github.com/mkdocstrings/crystal"
 keywords = ["mkdocs", "mkdocstrings", "crystal", "mkdocs-plugin"]
 readme = "README.md"
 packages = [
-    { include = "mkdocstrings" }
+    { include = "mkdocstrings_handlers" }
 ]
 
 [tool.poetry.plugins."markdown.extensions"]
-deduplicate-toc = "mkdocstrings.handlers.crystal.deduplicate_toc:DeduplicateTocExtension"
+deduplicate-toc = "mkdocstrings_handlers.crystal.deduplicate_toc:DeduplicateTocExtension"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-mkdocstrings = ">=0.15.1"
+mkdocstrings = ">=0.18.0"
 markdown-callouts = ">=0.1.0"
 mkdocs-autorefs = ">=0.2.0"
 markupsafe = ">=1.1.1, <3.0"
@@ -47,7 +47,7 @@ ensure_newline_before_comments = true
 addopts = "--tb=native"
 enable_assertion_pass_hook = true
 filterwarnings = ["ignore::DeprecationWarning:.*:",
-                  "default::DeprecationWarning:mkdocstrings.handlers.crystal.*:"]
+                  "default::DeprecationWarning:mkdocstrings_handlers.crystal.*:"]
 
 [build-system]
 requires = ["poetry>=0.12"]

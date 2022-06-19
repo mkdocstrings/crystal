@@ -70,7 +70,7 @@ But instead you can use the convenience [pluglet](https://mkdocs-macros-plugin.r
     plugins:
       - macros:
           modules:
-            - mkdocstrings.handlers.crystal.macros
+            - mkdocstrings_handlers.crystal.macros
     ```
 
 Then you can dynamically generate Markdown based on introspecting Crystal's type tree. For example, instead of writing this in Markdown:

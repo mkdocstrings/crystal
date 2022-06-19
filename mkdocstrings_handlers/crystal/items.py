@@ -126,7 +126,7 @@ D = TypeVar("D", bound=DocItem)
 
 
 class DocType(DocItem):
-    """A [DocItem][mkdocstrings.handlers.crystal.items.DocItem] representing a Crystal type."""
+    """A [DocItem][mkdocstrings_handlers.crystal.items.DocItem] representing a Crystal type."""
 
     _TEMPLATE = "type.html"
 
@@ -236,7 +236,7 @@ class DocType(DocItem):
 
     @cached_property
     def locations(self) -> Sequence[DocLocation]:
-        """The [code locations][mkdocstrings.handlers.crystal.items.DocLocation] over which the definitions of this type span."""
+        """The [code locations][mkdocstrings_handlers.crystal.items.DocLocation] over which the definitions of this type span."""
         return [
             self.root.update_url(DocLocation(loc["filename"], loc["line_number"], loc["url"]))
             for loc in self.data["locations"]
@@ -250,27 +250,27 @@ class DocType(DocItem):
 
 
 class DocModule(DocType):
-    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal module."""
+    """A [DocType][mkdocstrings_handlers.crystal.items.DocType] representing a Crystal module."""
 
 
 class DocClass(DocType):
-    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal class."""
+    """A [DocType][mkdocstrings_handlers.crystal.items.DocType] representing a Crystal class."""
 
 
 class DocStruct(DocType):
-    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal struct."""
+    """A [DocType][mkdocstrings_handlers.crystal.items.DocType] representing a Crystal struct."""
 
 
 class DocEnum(DocType):
-    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal enum."""
+    """A [DocType][mkdocstrings_handlers.crystal.items.DocType] representing a Crystal enum."""
 
 
 class DocAlias(DocType):
-    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal alias."""
+    """A [DocType][mkdocstrings_handlers.crystal.items.DocType] representing a Crystal alias."""
 
     @cached_property
     def aliased(self) -> crystal_html.TextWithLinks:
-        """[A rich string][mkdocstrings.handlers.crystal.crystal_html.TextWithLinks] containing the definition of what this is aliased to."""
+        """[A rich string][mkdocstrings_handlers.crystal.crystal_html.TextWithLinks] containing the definition of what this is aliased to."""
         # https://github.com/crystal-lang/crystal/pull/10117
         try:
             return crystal_html.parse_crystal_html(self.data["aliased_html"])
@@ -284,11 +284,11 @@ class DocAlias(DocType):
 
 
 class DocAnnotation(DocType):
-    """A [DocType][mkdocstrings.handlers.crystal.items.DocType] representing a Crystal annotation."""
+    """A [DocType][mkdocstrings_handlers.crystal.items.DocType] representing a Crystal annotation."""
 
 
 class DocConstant(DocItem):
-    """A [DocItem][mkdocstrings.handlers.crystal.items.DocItem] representing a Crystal constant definition."""
+    """A [DocItem][mkdocstrings_handlers.crystal.items.DocItem] representing a Crystal constant definition."""
 
     _TEMPLATE = "constant.html"
 
@@ -309,7 +309,7 @@ class DocConstant(DocItem):
 
 
 class DocMethod(DocItem):
-    """A [DocItem][mkdocstrings.handlers.crystal.items.DocItem] representing a Crystal method."""
+    """A [DocItem][mkdocstrings_handlers.crystal.items.DocItem] representing a Crystal method."""
 
     _TEMPLATE = "method.html"
     METHOD_SEP: str = ""
@@ -337,7 +337,7 @@ class DocMethod(DocItem):
 
     @property
     def short_name(self):
-        """Similar to [rel_id][mkdocstrings.handlers.crystal.items.DocItem.rel_id], but also includes the separator first, e.g. `#bar(x,y)` or `.baz()`"""
+        """Similar to [rel_id][mkdocstrings_handlers.crystal.items.DocItem.rel_id], but also includes the separator first, e.g. `#bar(x,y)` or `.baz()`"""
         return (self.METHOD_SEP if self.parent and self.parent.parent else "") + self.name
 
     @property
@@ -347,7 +347,7 @@ class DocMethod(DocItem):
 
     @cached_property
     def args_string(self) -> str:
-        """[A rich string][mkdocstrings.handlers.crystal.crystal_html.TextWithLinks] with the method's parameters.
+        """[A rich string][mkdocstrings_handlers.crystal.crystal_html.TextWithLinks] with the method's parameters.
 
         e.g. `(foo : Bar) : Baz`
         """
@@ -364,7 +364,7 @@ class DocMethod(DocItem):
 
     @cached_property
     def location(self) -> Optional[DocLocation]:
-        """[Code location][mkdocstrings.handlers.crystal.items.DocLocation] of this method. Can be `None` if unknown."""
+        """[Code location][mkdocstrings_handlers.crystal.items.DocLocation] of this method. Can be `None` if unknown."""
         # https://github.com/crystal-lang/crystal/pull/10122
         loc = self.data.get("location")
         if loc is None:
@@ -381,7 +381,7 @@ class DocMethod(DocItem):
 
 
 class DocInstanceMethod(DocMethod):
-    """A [DocMethod][mkdocstrings.handlers.crystal.items.DocMethod] representing a Crystal instance method."""
+    """A [DocMethod][mkdocstrings_handlers.crystal.items.DocMethod] representing a Crystal instance method."""
 
     METHOD_SEP = METHOD_ID_SEP = "#"
 
@@ -391,7 +391,7 @@ class DocInstanceMethod(DocMethod):
 
 
 class DocClassMethod(DocMethod):
-    """A [DocMethod][mkdocstrings.handlers.crystal.items.DocMethod] representing a Crystal class method."""
+    """A [DocMethod][mkdocstrings_handlers.crystal.items.DocMethod] representing a Crystal class method."""
 
     METHOD_SEP = METHOD_ID_SEP = "."
 
@@ -401,7 +401,7 @@ class DocClassMethod(DocMethod):
 
 
 class DocMacro(DocMethod):
-    """A [DocMethod][mkdocstrings.handlers.crystal.items.DocMethod] representing a Crystal macro."""
+    """A [DocMethod][mkdocstrings_handlers.crystal.items.DocMethod] representing a Crystal macro."""
 
     METHOD_ID_SEP = ":"
 
@@ -411,11 +411,11 @@ class DocMacro(DocMethod):
 
 
 class DocConstructor(DocClassMethod):
-    """A [DocInstanceMethod][mkdocstrings.handlers.crystal.items.DocInstanceMethod] representing a Crystal macro."""
+    """A [DocInstanceMethod][mkdocstrings_handlers.crystal.items.DocInstanceMethod] representing a Crystal macro."""
 
 
 class DocMapping(Generic[D]):
-    """Represents items contained within a type. A container of [DocItem][mkdocstrings.handlers.crystal.items.DocItem]s."""
+    """Represents items contained within a type. A container of [DocItem][mkdocstrings_handlers.crystal.items.DocItem]s."""
 
     items: Sequence = ()
     search: Mapping[str, Any] = {}
@@ -449,14 +449,14 @@ class DocMapping(Generic[D]):
         return bool(self.items)
 
     def __contains__(self, key: str) -> bool:
-        """`"identifier" in mapping` to check whether the mapping contains an item by this identifier (see [DocItem.rel_id][mkdocstrings.handlers.crystal.items.DocItem.rel_id])."""
+        """`"identifier" in mapping` to check whether the mapping contains an item by this identifier (see [DocItem.rel_id][mkdocstrings_handlers.crystal.items.DocItem.rel_id])."""
         return key in self.search
 
     def __getitem__(self, key: str) -> D:
-        """`mapping["identifier"]` to get the item by this identifier (see [DocItem.rel_id][mkdocstrings.handlers.crystal.items.DocItem.rel_id]).
+        """`mapping["identifier"]` to get the item by this identifier (see [DocItem.rel_id][mkdocstrings_handlers.crystal.items.DocItem.rel_id]).
 
         Returns:
-            A [DocItem][mkdocstrings.handlers.crystal.items.DocItem]
+            A [DocItem][mkdocstrings_handlers.crystal.items.DocItem]
         Raises:
             KeyError: if the item is missing.
         """
@@ -505,7 +505,7 @@ class DocPath:
         return self.full_name.split("(", 1)[0]
 
     def lookup(self) -> DocItem:
-        """[Look up][mkdocstrings.handlers.crystal.items.DocItem.lookup] this item in its originating doc structure.
+        """[Look up][mkdocstrings_handlers.crystal.items.DocItem.lookup] this item in its originating doc structure.
 
         Raises:
             CollectionError: When an item by this identifier couldn't be found.
