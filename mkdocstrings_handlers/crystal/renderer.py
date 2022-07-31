@@ -51,8 +51,8 @@ class CrystalRenderer(base.BaseRenderer):
                 pass
 
         # Disallow raw HTML.
-        del md.preprocessors["html_block"]
-        del md.inlinePatterns["html"]
+        md.preprocessors.deregister("html_block")
+        md.inlinePatterns.deregister("html")
 
         md.treeprocessors.register(_RefInsertingTreeprocessor(md), "mkdocstrings_crystal_xref", 12)
         markdown_callouts.CalloutsExtension().extendMarkdown(md)
