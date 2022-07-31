@@ -183,12 +183,17 @@ class DocView:
         self.config = config
 
     def __getattr__(self, name: str):
-        val = getattr(self.item, name)
-        if isinstance(val, DocMapping) and val:
-            if name == "types" and not self.config["nested_types"]:
-                return DocMapping(())
-            return type(self)._filter(self.config["file_filters"], val, type(self)._get_locations)
-        return val
+        try:
+            val = getattr(self.item, name)
+            if isinstance(val, DocMapping) and val:
+                if name == "types" and not self.config["nested_types"]:
+                    return DocMapping(())
+                return type(self)._filter(
+                    self.config["file_filters"], val, type(self)._get_locations
+                )
+            return val
+        except AttributeError as e:
+            raise RuntimeError(e) from e
 
     def walk_types(self) -> Iterator[DocType]:
         types = cast(DocMapping[DocType], self.types)
@@ -203,11 +208,11 @@ class DocView:
             if not obj:
                 return ()
         if isinstance(obj, DocType):
-            return [loc.url.rsplit("#", 1)[0] for loc in obj.locations]
+            return [loc.filename for loc in obj.locations]
         elif isinstance(obj, DocMethod):
             if not obj.location:
                 return ()
-            return (obj.location.url.rsplit("#", 1)[0],)
+            return (obj.location.filename,)
         else:
             raise TypeError(obj)
 
