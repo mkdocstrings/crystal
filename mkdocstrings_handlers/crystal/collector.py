@@ -9,7 +9,6 @@ import subprocess
 from typing import Any, Callable, Iterable, Iterator, List, Mapping, Sequence, TypeVar, Union, cast
 
 import mkdocs.exceptions
-import mkdocs.utils
 from cached_property import cached_property
 from mkdocstrings.handlers.base import BaseCollector, CollectionError
 
@@ -22,7 +21,6 @@ except ImportError:
     PluginError = SystemExit
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
-log.addFilter(mkdocs.utils.warning_filter)
 
 D = TypeVar("D", bound=DocItem)
 
