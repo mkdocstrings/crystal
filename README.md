@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/mkdocstrings-crystal)](https://pypi.org/project/mkdocstrings-crystal/)
 [![GitHub](https://img.shields.io/github/license/oprypin/mkdocstrings-crystal)](https://github.com/mkdocstrings/crystal/blob/master/LICENSE.md)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/oprypin/mkdocstrings-crystal/CI)](https://github.com/mkdocstrings/crystal/actions?query=event%3Apush+branch%3Amaster)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/oprypin/mkdocstrings-crystal/ci.yml.svg)](https://github.com/mkdocstrings/crystal/actions?query=event%3Apush+branch%3Amaster)
 
 ## Introduction
 
