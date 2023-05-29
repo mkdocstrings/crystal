@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import contextlib
 import xml.etree.ElementTree as etree
-from typing import Optional, TypeVar, Union
+from typing import TypeVar
 
 import jinja2
 import markdown_callouts
@@ -85,7 +87,7 @@ class CrystalRenderer:
             html = html.replace(tag_end, tag_end + prefix, 1)
         return html
 
-    def do_reference(self, path: Union[str, DocPath], text: Optional[str] = None) -> str:
+    def do_reference(self, path: str | DocPath, text: str | None = None) -> str:
         if text is None:
             text = str(path)
         if "(" in str(path):
@@ -125,7 +127,7 @@ def _monkeypatch(obj, attr, func):
 
 
 class _RefInsertingTreeprocessor(Treeprocessor):
-    context: Optional[DocItem]
+    context: DocItem | None
 
     def __init__(self, md):
         super().__init__(md)

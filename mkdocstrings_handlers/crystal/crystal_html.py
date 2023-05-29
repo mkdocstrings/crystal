@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import collections
 import html.parser
 import io
-from typing import Callable, Iterable, List, Optional, Sequence, Tuple
+from typing import Callable, Iterable, Sequence, Tuple
 
 from markupsafe import Markup, escape
 
@@ -45,8 +47,8 @@ class _CrystalHTMLHandler(html.parser.HTMLParser):
     def __init__(self):
         super().__init__()
         self.text = io.StringIO()
-        self.tokens: List[LinkToken] = []
-        self._link_starts: List[Tuple[int, str]] = []
+        self.tokens: list[LinkToken] = []
+        self._link_starts: list[tuple[int, str]] = []
 
     def handle_starttag(self, tag, attrs):
         if tag == "a":
@@ -79,7 +81,7 @@ class _PygmentsHTMLHandler(html.parser.HTMLParser):
         self.token = next(self.tokens, None)
         self.pos = 0
         self.html = io.StringIO()
-        self.inlink: Optional[int] = None
+        self.inlink: int | None = None
 
     def handle_starttag(self, tag, attrs):
         if tag == "span" and self.inlink is None:

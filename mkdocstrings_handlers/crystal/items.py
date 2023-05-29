@@ -4,7 +4,7 @@ import abc
 import collections
 import dataclasses
 import re
-from typing import Any, Generic, Iterator, Mapping, Optional, Sequence, TypeVar, Union
+from typing import Any, Generic, Iterator, Mapping, Optional, Sequence, TypeVar
 
 try:
     from functools import cached_property
@@ -20,11 +20,11 @@ class DocItem(metaclass=abc.ABCMeta):
     """A representation of a documentable item from Crystal language."""
 
     _TEMPLATE: str
-    parent: Optional["DocItem"] = None
+    parent: Optional[DocItem] = None
     """The item that is the parent namespace for this item."""
-    root: "DocType" = None
+    root: DocType = None
 
-    def __init__(self, data: Mapping[str, Any], parent: Optional[DocItem], root: Optional[DocType]):
+    def __init__(self, data: Mapping[str, Any], parent: DocItem | None, root: DocType | None):
         self.data = data
         self.parent = parent
         self.root = root or self  # type: ignore
@@ -47,7 +47,7 @@ class DocItem(metaclass=abc.ABCMeta):
         return self.data["id"]
 
     @property
-    def doc(self) -> Optional[str]:
+    def doc(self) -> str | None:
         """The doc comment of this item."""
         return self.data.get("doc")
 
@@ -75,7 +75,7 @@ class DocItem(metaclass=abc.ABCMeta):
         )
         return f"{type(self).__name__}({items})"
 
-    def lookup(self, identifier: Union[str, DocPath]) -> DocItem:
+    def lookup(self, identifier: str | DocPath) -> DocItem:
         """Find an item by its identifier, relative to this item or the root.
 
         Params:
@@ -130,7 +130,7 @@ class DocType(DocItem):
 
     _TEMPLATE = "type.html"
 
-    def __new__(cls, data: Optional[Mapping[str, Any]] = None, *args, **kwargs) -> DocType:
+    def __new__(cls, data: Mapping[str, Any] | None = None, *args, **kwargs) -> DocType:
         """Based on Crystal's JSON, create an object of an appropriate subclass of DocType"""
         if cls is DocType:
             try:
@@ -204,7 +204,7 @@ class DocType(DocItem):
         return DocMapping([DocType(x, self, self.root) for x in self.data.get("types", ())])
 
     @cached_property
-    def superclass(self) -> Optional[DocPath]:
+    def superclass(self) -> DocPath | None:
         """The possible superclass of this type."""
         if self.data.get("superclass") is not None:
             return DocPath(self.data["superclass"], self)
@@ -363,7 +363,7 @@ class DocMethod(DocItem):
         return crystal_html.parse_crystal_html(html)
 
     @cached_property
-    def location(self) -> Optional[DocLocation]:
+    def location(self) -> DocLocation | None:
         """[Code location][mkdocstrings_handlers.crystal.items.DocLocation] of this method. Can be `None` if unknown."""
         # https://github.com/crystal-lang/crystal/pull/10122
         loc = self.data.get("location")
@@ -483,7 +483,7 @@ class DocLocation:
     """The absolute path to the file."""
     line: int
     """The (1-based) line number in the file."""
-    url: Optional[str]
+    url: str | None
     """The derived URL of this location on a source code hosting site."""
 
 

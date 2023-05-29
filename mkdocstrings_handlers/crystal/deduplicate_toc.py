@@ -1,12 +1,13 @@
+from __future__ import annotations
+
 import xml.etree.ElementTree as etree
-from typing import List
 
 from markdown import Markdown  # type: ignore
 from markdown.extensions import Extension, fenced_code  # type: ignore
 from markdown.treeprocessors import Treeprocessor
 
 
-def _deduplicate_toc(toc: List[dict]) -> None:
+def _deduplicate_toc(toc: list[dict]) -> None:
     i = 0
     while i < len(toc):
         el = toc[i]

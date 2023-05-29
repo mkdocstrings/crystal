@@ -1,4 +1,6 @@
-from typing import Any, Mapping, Optional, Sequence
+from __future__ import annotations
+
+from typing import Any, Mapping, Sequence
 
 from mkdocstrings.handlers.base import BaseHandler
 
@@ -13,10 +15,10 @@ class CrystalHandler(CrystalCollector, CrystalRenderer, BaseHandler):
     def __init__(
         self,
         theme: str,
-        custom_templates: Optional[str] = None,
+        custom_templates: str | None = None,
         crystal_docs_flags: Sequence[str] = (),
         source_locations: Mapping[str, str] = {},
-        **config: Any
+        **config: Any,
     ) -> None:
         BaseHandler.__init__(self, "crystal", theme, custom_templates)
         CrystalCollector.__init__(

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections
 import dataclasses
 import functools
@@ -6,7 +8,7 @@ import os
 import re
 import shlex
 import subprocess
-from typing import Any, Callable, Iterable, Iterator, List, Mapping, Sequence, TypeVar, Union, cast
+from typing import Any, Callable, Iterable, Iterator, Mapping, Sequence, TypeVar, cast
 
 import mkdocs.exceptions
 from cached_property import cached_property
@@ -62,7 +64,7 @@ class CrystalCollector(BaseCollector):
 
     # pytype: disable=bad-return-type
     @cached_property
-    def root(self) -> "DocRoot":
+    def root(self) -> DocRoot:
         """The top-level namespace, represented as a fake module."""
         try:
             with self._proc:
@@ -77,7 +79,7 @@ class CrystalCollector(BaseCollector):
 
     # pytype: enable=bad-return-type
 
-    def collect(self, identifier: str, config: Mapping[str, Any]) -> "DocView":
+    def collect(self, identifier: str, config: Mapping[str, Any]) -> DocView:
         """[Find][mkdocstrings_handlers.crystal.items.DocItem.lookup] an item by its identifier.
 
         Raises:
@@ -165,7 +167,7 @@ _crystal_info = _DictAccess(_CrystalInfo())
 
 
 class DocRoot(DocModule):
-    source_locations: List[_SourceDestination]
+    source_locations: list[_SourceDestination]
 
     def update_url(self, location: DocLocation) -> DocLocation:
         for dest in self.source_locations:
@@ -217,7 +219,7 @@ class DocView:
     @classmethod
     def _filter(
         cls,
-        filters: Union[bool, Sequence[str]],
+        filters: bool | Sequence[str],
         mapp: DocMapping[D],
         getter: Callable[[D], Sequence[str]],
     ) -> DocMapping[D]:
