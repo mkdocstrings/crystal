@@ -18,17 +18,17 @@ theme:
 extra_css:
   - assets/style.css
 
+watch:
+  - mkdocstrings_handlers
+
 plugins:
   - search
   - section-index
   - mkdocstrings:
-      watch:
-        - mkdocstrings
       handlers:
         python:
-          selection:
+          options:
             filters: ["!^_[^_]", "!__new__"]
-          rendering:
             show_signature_annotations: true
             show_source: false
             show_root_heading: true

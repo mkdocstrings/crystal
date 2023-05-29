@@ -1,12 +1,11 @@
 ### ::: mkdocstrings_handlers.crystal.collector.CrystalCollector
-    selection:
+    options:
         filters: ["!collect", "!teardown"]
-    rendering:
         show_root_full_path: true
 
 
 ### ::: mkdocstrings_handlers.crystal.items.DocItem
-    rendering:
+    options:
         show_root_full_path: true
 
 ## Subclasses of DocItem
@@ -31,16 +30,16 @@
 
 ## Utilities
 ### ::: mkdocstrings_handlers.crystal.items.DocMapping
-    rendering:
+    options:
         show_root_full_path: true
 
 ### ::: mkdocstrings_handlers.crystal.items.DocLocation
-    rendering:
+    options:
         show_root_full_path: true
 ### ::: mkdocstrings_handlers.crystal.items.DocPath
-    rendering:
+    options:
         show_root_full_path: true
 
 ### ::: mkdocstrings_handlers.crystal.crystal_html.TextWithLinks
-    rendering:
+    options:
         show_root_full_path: true

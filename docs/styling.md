@@ -16,7 +16,7 @@ Adding this styling to your site is recommended, otherwise things may not look r
 This is in addition to the mandatory style that *mkdocstrings-crystal* already inserts (just for reference):
 
 ```css
---8<-- "mkdocstrings/templates/crystal/material/style.css"
+--8<-- "mkdocstrings_handlers/crystal/templates/material/style.css"
 ```
 
 ## Custom styles

@@ -1,6 +1,6 @@
 import pytest
 
-from mkdocstrings.handlers.crystal import deduplicate_toc
+from mkdocstrings_handlers.crystal import deduplicate_toc
 
 
 @pytest.mark.golden_test("deduplicate_toc/**/*.yml")

@@ -8,7 +8,6 @@ from markdown import Markdown  # type: ignore
 from markdown.extensions import Extension, fenced_code  # type: ignore
 from markdown.treeprocessors import Treeprocessor
 from markupsafe import Markup
-
 from mkdocstrings.handlers import base
 
 from . import crystal_html
@@ -17,8 +16,12 @@ from .items import DocItem, DocPath
 T = TypeVar("T")
 
 
-class CrystalRenderer(base.BaseRenderer):
+class CrystalRenderer:
     fallback_theme = "material"
+
+    @property
+    def collector(self):
+        return self
 
     def render(self, data: DocItem, config: dict) -> str:
         subconfig = {

@@ -33,7 +33,7 @@ You can also enable that extension for the whole site:
 In addition to the [usual admonition styles](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types), *mkdocstrings-crystal* injects styling for the Material theme to enable the following admonition kinds, used [in Crystal documentation](https://crystal-lang.org/reference/syntax_and_semantics/documenting_code.html#admonitions):
 
 <style>
---8<-- "mkdocstrings/templates/crystal/material/style.css"
+--8<-- "mkdocstrings_handlers/crystal/templates/material/style.css"
 
 .admonition p>code {
     display: inline-block;
@@ -60,7 +60,7 @@ Both the default styles and the extra styles work with both the ["callouts" exte
 *Without* support, you have to access the doc root as
 
 ```jinja
-{% set crystal = config['plugins']['mkdocstrings'].get_handler('crystal').collector.root %}
+{% set crystal = config.plugins['mkdocstrings'].get_handler('crystal').root %}
 ```
 
 But instead you can use the convenience [pluglet](https://mkdocs-macros-plugin.readthedocs.io/en/latest/pluglets/) shipped with *mkdocstrings-crystal* to have such a `crystal` object available in every page *without* the above assignment.
@@ -103,7 +103,7 @@ There's no special support, these just work well together.
 The plugin exposes the MkDocs config, and from there you can get to the doc root:
 
 ```python
-root = config['plugins']['mkdocstrings'].get_handler('crystal').collector.root
+root = config.plugins['mkdocstrings'].get_handler('crystal').root
 ```
 
 [Browse the API exposed by the root `DocType`](api.md).

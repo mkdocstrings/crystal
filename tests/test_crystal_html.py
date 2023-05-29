@@ -1,7 +1,7 @@
 import markupsafe
 import pytest
 
-from mkdocstrings.handlers.crystal import crystal_html
+from mkdocstrings_handlers.crystal import crystal_html
 
 
 @pytest.mark.golden_test("crystal_html/**/*.yml")

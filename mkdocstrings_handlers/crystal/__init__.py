@@ -7,20 +7,21 @@ from .collector import CrystalCollector
 from .renderer import CrystalRenderer
 
 
-class CrystalHandler(BaseHandler):
+class CrystalHandler(CrystalCollector, CrystalRenderer, BaseHandler):
     load_inventory = staticmethod(inventory.list_object_urls)
 
+    def __init__(
+        self,
+        theme: str,
+        custom_templates: Optional[str] = None,
+        crystal_docs_flags: Sequence[str] = (),
+        source_locations: Mapping[str, str] = {},
+        **config: Any
+    ) -> None:
+        BaseHandler.__init__(self, "crystal", theme, custom_templates)
+        CrystalCollector.__init__(
+            self, crystal_docs_flags=crystal_docs_flags, source_locations=source_locations
+        )
 
-def get_handler(
-    theme: str,
-    custom_templates: Optional[str] = None,
-    crystal_docs_flags: Sequence[str] = (),
-    source_locations: Mapping[str, str] = {},
-    **config: Any
-) -> CrystalHandler:
-    collector = CrystalCollector(
-        crystal_docs_flags=crystal_docs_flags, source_locations=source_locations
-    )
-    renderer = CrystalRenderer("crystal", theme, custom_templates)
-    renderer.collector = collector
-    return CrystalHandler(collector, renderer)
+
+get_handler = CrystalHandler

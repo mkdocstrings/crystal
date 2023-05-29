@@ -4,7 +4,7 @@
 import mkdocs_gen_files
 
 # Get the documentation root object
-root = mkdocs_gen_files.config["plugins"]["mkdocstrings"].get_handler("crystal").collector.root
+root = mkdocs_gen_files.config["plugins"]["mkdocstrings"].get_handler("crystal").root
 
 # Start a navigation collection (to be filled as we go along)
 nav = mkdocs_gen_files.Nav()
