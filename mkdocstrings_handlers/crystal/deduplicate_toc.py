@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as etree
 
-from markdown import Markdown  # type: ignore
-from markdown.extensions import Extension, fenced_code  # type: ignore
+from markdown import Markdown
+from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 
 
@@ -22,7 +22,7 @@ def _deduplicate_toc(toc: list[dict]) -> None:
 class _TocDeduplicatingTreeprocessor(Treeprocessor):
     def run(self, root: etree.Element):
         try:
-            toc = self.md.toc_tokens
+            toc = self.md.toc_tokens  # type: ignore
         except AttributeError:
             return
         _deduplicate_toc(toc)

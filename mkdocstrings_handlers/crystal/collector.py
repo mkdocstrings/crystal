@@ -8,11 +8,15 @@ import os
 import re
 import shlex
 import subprocess
-from typing import Any, Callable, Iterable, Iterator, Mapping, Sequence, TypeVar, cast
+import sys
+from typing import Any, BinaryIO, Callable, Iterable, Iterator, Mapping, Sequence, TypeVar, cast
 
-import mkdocs.exceptions
-from cached_property import cached_property
-from mkdocstrings.handlers.base import BaseCollector, CollectionError
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from cached_property import cached_property
+
+from mkdocstrings.handlers.base import BaseHandler, CollectionError
 
 from . import inventory
 from .items import DocConstant, DocItem, DocLocation, DocMapping, DocMethod, DocModule, DocType
@@ -20,14 +24,14 @@ from .items import DocConstant, DocItem, DocLocation, DocMapping, DocMethod, Doc
 try:
     from mkdocs.exceptions import PluginError
 except ImportError:
-    PluginError = SystemExit
+    PluginError = SystemExit  # type: ignore
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
 D = TypeVar("D", bound=DocItem)
 
 
-class CrystalCollector(BaseCollector):
+class CrystalCollector(BaseHandler):
     def __init__(
         self, crystal_docs_flags: Sequence[str] = (), source_locations: Mapping[str, str] = {}
     ):
@@ -68,13 +72,14 @@ class CrystalCollector(BaseCollector):
         """The top-level namespace, represented as a fake module."""
         try:
             with self._proc:
-                root = inventory.read(self._proc.stdout)
-            root.__class__ = DocRoot
+                module = inventory.read(cast(BinaryIO, self._proc.stdout))
+            module.__class__ = DocRoot
+            root = cast(DocRoot, module)
             root.source_locations = self._source_locations
             return root
         finally:
             if self._proc.returncode:
-                cmd = " ".join(shlex.quote(arg) for arg in self._proc.args)
+                cmd = " ".join(shlex.quote(arg) for arg in cast(Sequence[str], self._proc.args))
                 raise PluginError(f"Command `{cmd}` exited with status {self._proc.returncode}")
 
     # pytype: enable=bad-return-type
@@ -91,7 +96,7 @@ class CrystalCollector(BaseCollector):
             **config,
         }
 
-        item = self.root
+        item: DocItem = self.root
         if identifier != "::":
             item = item.lookup(identifier)
         return DocView(item, config)
@@ -204,9 +209,10 @@ class DocView:
     @classmethod
     def _get_locations(cls, obj: DocItem) -> Sequence[str]:
         if isinstance(obj, DocConstant):
-            obj = obj.parent
-            if not obj:
+            parent = obj.parent
+            if not parent:
                 return ()
+            obj = parent
         if isinstance(obj, DocType):
             return [loc.filename for loc in obj.locations]
         elif isinstance(obj, DocMethod):

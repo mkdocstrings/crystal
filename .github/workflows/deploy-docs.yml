@@ -16,9 +16,9 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install dependencies
-        run: pip install . -r docs/requirements.txt
+        run: pip install --no-deps -r docs/requirements.txt
       - name: Build site
-        run: .tools/build_docs.sh
+        run: mkdocs build
       - name: Deploy to gh-pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: oprypin/push-to-gh-pages@v3

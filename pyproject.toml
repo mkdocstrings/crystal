@@ -1,54 +1,140 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "mkdocstrings-crystal"
-version = "0.3.5"
 description = "Crystal language doc generator for mkdocstrings"
-authors = ["Oleh Prypin <oleh@pryp.in>"]
-license = "MIT"
-repository = "https://github.com/mkdocstrings/crystal"
-keywords = ["mkdocs", "mkdocstrings", "crystal", "mkdocs-plugin"]
 readme = "README.md"
-packages = [
-    { include = "mkdocstrings_handlers" }
+license = "MIT"
+keywords = ["mkdocs", "mkdocstrings", "crystal", "mkdocs-plugin"]
+authors = [
+    {name = "Oleh Prypin", email = "oleh@pryp.in"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Documentation",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Typing :: Typed",
+]
+dynamic = ["version"]
+requires-python = ">=3.7"
+dependencies = [
+    "mkdocstrings >=0.19.0",
+    "markdown-callouts >=0.1.0",
+    "mkdocs-autorefs >=0.3.1",
+    "markupsafe >=1.1.1",
+    "Jinja2 >=2.11.2",
+    "cached-property >=1.5.2; python_version < '3.8'",
 ]
 
-[tool.poetry.plugins."markdown.extensions"]
+[project.urls]
+Documentation = "https://mkdocstrings.github.io/crystal/"
+Source = "https://github.com/mkdocstrings/crystal"
+Issues = "https://github.com/mkdocstrings/crystal/issues"
+History = "https://github.com/mkdocstrings/crystal/releases"
+
+[project.entry-points."markdown.extensions"]
 deduplicate-toc = "mkdocstrings_handlers.crystal.deduplicate_toc:DeduplicateTocExtension"
 
-[tool.poetry.dependencies]
-python = "^3.7"
-mkdocstrings = ">=0.19.0"
-markdown-callouts = ">=0.1.0"
-mkdocs-autorefs = ">=0.2.0"
-markupsafe = ">=1.1.1, <3.0"
-cached-property = "^1.5.2; python_version<'3.8'"
-Jinja2 = ">=2.11.2, <4.0"
+[tool.hatch.version]
+path = "mkdocstrings_handlers/crystal/__init__.py"
 
-[tool.poetry.dev-dependencies]
-mkdocs-material = ">=6.0.2, <9.0"
-pytest = "^6.1.2"
-pytest-golden = ">=0.2.0"
-black = ">=20.8b1"
-isort = "^5.6.4"
-autoflake = "^1.4"
-pytype = {version = ">=2021.04.15", markers = "python_version>='3.6' and python_version<'3.9' and sys_platform!='win32'"}  # Skip on Windows
+[tool.hatch.build.targets.sdist]
+include = ["/mkdocstrings_handlers", "/tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["mkdocstrings_handlers"]
+
+[tool.hatch.envs.default.scripts]
+all = [
+    "hatch run style:format",
+    "hatch run types:check",
+    "hatch run test:test",
+]
+
+[tool.hatch.envs.test]
+dependencies = [
+    "pytest",
+    "pytest-golden",
+]
+[tool.hatch.envs.test.scripts]
+test = [
+    "pytest -q",
+]
+
+[tool.hatch.envs.types]
+dependencies = [
+    "mypy",
+    "types-Markdown >=3.4.2",
+]
+[tool.hatch.envs.types.scripts]
+check = [
+    "mypy mkdocstrings_handlers"
+]
+
+[tool.hatch.envs.style]
+skip-install = true
+dependencies = [
+    "pyupgrade",
+    "autoflake",
+    "isort",
+    "black",
+]
+[tool.hatch.envs.style.scripts]
+format = [
+    "find mkdocstrings_handlers tests -name '*.py' | xargs pyupgrade --exit-zero-even-if-changed --py37-plus",
+    "autoflake -r mkdocstrings_handlers tests",
+    "isort -q mkdocstrings_handlers tests",
+    "black -q mkdocstrings_handlers tests",
+]
+
+[tool.hatch.envs.docs]
+detached = true
+dependencies = [
+    "mkdocs >=1.1.2",
+    "mkdocs-material >=7.1.4",
+    "mkdocs-section-index >=0.3.0",
+    "mkdocstrings >=0.15.0",
+    "mkdocstrings-python >=0.7.1",
+    "pymdown-extensions >=8.2",
+    "markdown-callouts >=0.2",
+]
 
 [tool.black]
 line-length = 100
 
 [tool.isort]
+profile = "black"
 line_length = 100
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
+
+[tool.autoflake]
+in-place = true
+remove-all-unused-imports = true
+remove-unused-variables = true
+expand-star-imports = true
+
+[tool.mypy]
+ignore_missing_imports = true
+warn_unreachable = true
+no_implicit_optional = true
+show_error_codes = true
 
 [tool.pytest.ini_options]
 addopts = "--tb=native"
 enable_assertion_pass_hook = true
 filterwarnings = ["ignore::DeprecationWarning:.*:",
                   "default::DeprecationWarning:mkdocstrings_handlers.crystal.*:"]
-
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+testpaths = ["tests"]

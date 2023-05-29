@@ -6,6 +6,6 @@
   {%- endfilter %}
 
   <div class="doc doc-contents {% if root %}first{% endif %}">
-    {% if obj.doc %}{{ obj.doc |convert_markdown(obj, heading_level, obj.abs_id) }}{% endif %}
+    {% if obj.doc %}{{ obj.doc |convert_markdown_ctx(obj, heading_level, obj.abs_id) }}{% endif %}
   </div>
 </div>

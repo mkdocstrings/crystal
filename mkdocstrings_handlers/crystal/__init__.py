@@ -8,9 +8,11 @@ from . import inventory
 from .collector import CrystalCollector
 from .renderer import CrystalRenderer
 
+__version__ = "0.3.5"
+
 
 class CrystalHandler(CrystalCollector, CrystalRenderer, BaseHandler):
-    load_inventory = staticmethod(inventory.list_object_urls)
+    load_inventory = staticmethod(inventory.list_object_urls)  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -20,7 +22,7 @@ class CrystalHandler(CrystalCollector, CrystalRenderer, BaseHandler):
         source_locations: Mapping[str, str] = {},
         **config: Any,
     ) -> None:
-        BaseHandler.__init__(self, "crystal", theme, custom_templates)
+        BaseHandler.__init__(self, "crystal", theme, custom_templates)  # type: ignore
         CrystalCollector.__init__(
             self, crystal_docs_flags=crystal_docs_flags, source_locations=source_locations
         )

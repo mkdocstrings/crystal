@@ -4,27 +4,31 @@ import abc
 import collections
 import dataclasses
 import re
-from typing import Any, Generic, Iterator, Mapping, Optional, Sequence, TypeVar
+import sys
+from typing import TYPE_CHECKING, Any, Generic, Iterator, Mapping, Sequence, TypeVar, overload
 
-try:
+if sys.version_info >= (3, 8):
     from functools import cached_property
-except ImportError:
+else:
     from cached_property import cached_property
 
 from mkdocstrings.handlers.base import CollectionError
 
 from . import crystal_html
 
+if TYPE_CHECKING:
+    from .collector import DocRoot
+
 
 class DocItem(metaclass=abc.ABCMeta):
     """A representation of a documentable item from Crystal language."""
 
     _TEMPLATE: str
-    parent: Optional[DocItem] = None
+    parent: DocItem | None = None
     """The item that is the parent namespace for this item."""
-    root: DocType = None
+    root: DocRoot
 
-    def __init__(self, data: Mapping[str, Any], parent: DocItem | None, root: DocType | None):
+    def __init__(self, data: Mapping[str, Any], parent: DocItem | None, root: DocRoot | None):
         self.data = data
         self.parent = parent
         self.root = root or self  # type: ignore
@@ -87,7 +91,7 @@ class DocItem(metaclass=abc.ABCMeta):
         """
         if isinstance(identifier, DocPath):
             identifier = "::" + identifier.abs_id
-        obj = self.root if identifier.startswith("::") else self
+        obj: DocItem | None = self.root if identifier.startswith("::") else self
         ret_obj = obj
         path = re.split(r"(::|#|\.|:|^)", identifier)
         for sep, name in zip(path[1::2], path[2::2]):
@@ -110,6 +114,7 @@ class DocItem(metaclass=abc.ABCMeta):
                     obj = self.lookup(str(obj.aliased))
                 except CollectionError:
                     pass
+        assert ret_obj is not None
         return ret_obj
 
 
@@ -130,18 +135,19 @@ class DocType(DocItem):
 
     _TEMPLATE = "type.html"
 
+    @overload
+    def __new__(cls: type[DocType], data: Mapping[str, Any], *args, **kwargs) -> DocType:
+        ...
+
+    @overload
     def __new__(cls, data: Mapping[str, Any] | None = None, *args, **kwargs) -> DocType:
+        ...
+
+    def __new__(cls, data=None, *args, **kwargs) -> DocType:
         """Based on Crystal's JSON, create an object of an appropriate subclass of DocType"""
         if cls is DocType:
             try:
-                cls = {
-                    "module": DocModule,
-                    "class": DocClass,
-                    "struct": DocStruct,
-                    "enum": DocEnum,
-                    "alias": DocAlias,
-                    "annotation": DocAnnotation,
-                }[data["kind"]]
+                cls = _doc_type_mapping[data["kind"]]
             except KeyError:
                 raise TypeError(
                     "DocType is abstract, and {kind!r} is not recognized".format_map(data)
@@ -208,6 +214,7 @@ class DocType(DocItem):
         """The possible superclass of this type."""
         if self.data.get("superclass") is not None:
             return DocPath(self.data["superclass"], self)
+        return None
 
     @cached_property
     def ancestors(self) -> Sequence[DocPath]:
@@ -238,7 +245,7 @@ class DocType(DocItem):
     def locations(self) -> Sequence[DocLocation]:
         """The [code locations][mkdocstrings_handlers.crystal.items.DocLocation] over which the definitions of this type span."""
         return [
-            self.root.update_url(DocLocation(loc["filename"], loc["line_number"], loc["url"]))
+            self.root.update_url(DocLocation(loc["filename"], int(loc["line_number"]), loc["url"]))
             for loc in self.data["locations"]
         ]
 
@@ -360,7 +367,7 @@ class DocMethod(DocItem):
                 # https://github.com/crystal-lang/crystal/issues/12043
                 ret = self.data["def"].get("return_type", "")
                 return ret and " : " + ret
-        return crystal_html.parse_crystal_html(html)
+        return crystal_html.parse_crystal_html(html)  # type: ignore
 
     @cached_property
     def location(self) -> DocLocation | None:
@@ -376,8 +383,9 @@ class DocMethod(DocItem):
                     loc = m.groupdict()
         if loc:
             return self.root.update_url(
-                DocLocation(loc["filename"], loc["line_number"], loc["url"])
+                DocLocation(loc["filename"], int(loc["line_number"]), loc["url"])
             )
+        return None
 
 
 class DocInstanceMethod(DocMethod):
@@ -431,7 +439,8 @@ class DocMapping(Generic[D]):
 
     def __init__(self, items: Sequence[D]):
         self.items = items
-        self.search = search = {}
+        search: dict[str, Any] = {}
+        self.search = search
         for item in self.items:
             search.setdefault(item.rel_id, item)
             search.setdefault(item.name, item)
@@ -467,7 +476,7 @@ class DocMapping(Generic[D]):
             return self
         new = object.__new__(type(self))
         new.items = [*self, *other] if self else other.items
-        new.search = collections.ChainMap(new.search, other.search)
+        new.search = collections.ChainMap(new.search, other.search)  # type: ignore
         return new
 
     def __repr__(self):
@@ -526,3 +535,13 @@ class DocPath:
 
     def __hash__(self):
         return hash(self.abs_id)
+
+
+_doc_type_mapping: Mapping[str, type[DocType]] = {
+    "module": DocModule,
+    "class": DocClass,
+    "struct": DocStruct,
+    "enum": DocEnum,
+    "alias": DocAlias,
+    "annotation": DocAnnotation,
+}

@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import contextlib
 import xml.etree.ElementTree as etree
-from typing import TypeVar
+from typing import Any, Mapping, TypeVar
 
 import jinja2
 import markdown_callouts
-from markdown import Markdown  # type: ignore
-from markdown.extensions import Extension, fenced_code  # type: ignore
+from markdown import Markdown
 from markdown.treeprocessors import Treeprocessor
 from markupsafe import Markup
 from mkdocstrings.handlers import base
@@ -18,14 +17,14 @@ from .items import DocItem, DocPath
 T = TypeVar("T")
 
 
-class CrystalRenderer:
+class CrystalRenderer(base.BaseHandler):
     fallback_theme = "material"
 
     @property
     def collector(self):
         return self
 
-    def render(self, data: DocItem, config: dict) -> str:
+    def render(self, data: DocItem, config: Mapping[str, Any]) -> str:
         subconfig = {
             "show_source_links": True,
             "heading_level": 2,
@@ -51,7 +50,7 @@ class CrystalRenderer:
         self._pymdownx_hl = None
         for ext in md.registeredExtensions:
             try:
-                self._pymdownx_hl = ext.get_pymdownx_highlighter()
+                self._pymdownx_hl = ext.get_pymdownx_highlighter()  # type: ignore
             except AttributeError:
                 pass
 
@@ -68,7 +67,7 @@ class CrystalRenderer:
         self.env.undefined = jinja2.StrictUndefined
 
         self.env.filters["code_highlight"] = self.do_code_highlight
-        self.env.filters["convert_markdown"] = self.do_convert_markdown
+        self.env.filters["convert_markdown_ctx"] = self.do_convert_markdown_ctx
         self.env.filters["reference"] = self.do_reference
 
     def do_code_highlight(self, code, *, title: str = "", **kwargs) -> str:
@@ -100,7 +99,9 @@ class CrystalRenderer:
             html = '<span data-autorefs-optional="{}">{}</span>'
             return Markup(html).format(ref_obj.abs_id, text)
 
-    def do_convert_markdown(self, text: str, context: DocItem, heading_level: int, html_id: str):
+    def do_convert_markdown_ctx(
+        self, text: str, context: DocItem, heading_level: int, html_id: str
+    ):
         self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
         return super().do_convert_markdown(text, heading_level=heading_level, html_id=html_id)
 

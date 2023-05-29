@@ -44,7 +44,7 @@ def linkify_highlighted_html(
 
 
 class _CrystalHTMLHandler(html.parser.HTMLParser):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.text = io.StringIO()
         self.tokens: list[LinkToken] = []
