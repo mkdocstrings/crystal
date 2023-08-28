@@ -84,8 +84,10 @@ class DocItem(metaclass=abc.ABCMeta):
 
         Params:
             identifier: The item to search for.
+
         Returns:
             An object that's a subclass of DocItem.
+
         Raises:
             CollectionError: When an item by that identifier couldn't be found.
         """
@@ -465,7 +467,8 @@ class DocMapping(Generic[D]):
         """`mapping["identifier"]` to get the item by this identifier (see [DocItem.rel_id][mkdocstrings_handlers.crystal.items.DocItem.rel_id]).
 
         Returns:
-            A [DocItem][mkdocstrings_handlers.crystal.items.DocItem]
+            A [DocItem][mkdocstrings_handlers.crystal.items.DocItem].
+
         Raises:
             KeyError: if the item is missing.
         """
