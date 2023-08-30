@@ -40,8 +40,8 @@ class CrystalRenderer(base.BaseHandler):
                 root=True,
             )
 
-    def get_anchor(self, data: DocItem) -> str:
-        return data.abs_id
+    def get_anchors(self, data: DocItem) -> tuple[str, ...]:
+        return (data.abs_id,)
 
     def update_env(self, md: Markdown, config: dict) -> None:
         super().update_env(md, config)
