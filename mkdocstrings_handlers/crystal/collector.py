@@ -9,7 +9,18 @@ import re
 import shlex
 import subprocess
 import sys
-from typing import Any, BinaryIO, Callable, Iterable, Iterator, Mapping, Sequence, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    BinaryIO,
+    Callable,
+    Iterable,
+    Iterator,
+    Mapping,
+    Sequence,
+    TypeVar,
+    cast,
+)
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -28,7 +39,8 @@ except ImportError:
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
-D = TypeVar("D", bound=DocItem)
+if TYPE_CHECKING:
+    D = TypeVar("D", bound=DocItem)
 
 
 class CrystalCollector(BaseHandler):
@@ -66,7 +78,6 @@ class CrystalCollector(BaseHandler):
             key=lambda d: -d.src_path.count("/"),
         )
 
-    # pytype: disable=bad-return-type
     @cached_property
     def root(self) -> DocRoot:
         """The top-level namespace, represented as a fake module."""
@@ -81,8 +92,6 @@ class CrystalCollector(BaseHandler):
             if self._proc.returncode:
                 cmd = " ".join(shlex.quote(arg) for arg in cast(Sequence[str], self._proc.args))
                 raise PluginError(f"Command `{cmd}` exited with status {self._proc.returncode}")
-
-    # pytype: enable=bad-return-type
 
     def collect(self, identifier: str, config: Mapping[str, Any]) -> DocView:
         """[Find][mkdocstrings_handlers.crystal.items.DocItem.lookup] an item by its identifier.

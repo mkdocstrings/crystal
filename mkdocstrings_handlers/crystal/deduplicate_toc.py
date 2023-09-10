@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-import xml.etree.ElementTree as etree
+from typing import TYPE_CHECKING
 
-from markdown import Markdown
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
+
+if TYPE_CHECKING:
+    import xml.etree.ElementTree as etree
+
+    from markdown import Markdown
 
 
 def _deduplicate_toc(toc: list[dict]) -> None:

@@ -2,19 +2,22 @@ from __future__ import annotations
 
 import contextlib
 import xml.etree.ElementTree as etree
-from typing import Any, Mapping, TypeVar
+from typing import TYPE_CHECKING, Any, Mapping, TypeVar
 
 import jinja2
 import markdown_callouts
-from markdown import Markdown
 from markdown.treeprocessors import Treeprocessor
 from markupsafe import Markup
 from mkdocstrings.handlers import base
 
 from . import crystal_html
-from .items import DocItem, DocPath
 
-T = TypeVar("T")
+if TYPE_CHECKING:
+    from markdown import Markdown
+
+    from .items import DocItem, DocPath
+
+    T = TypeVar("T")
 
 
 class CrystalRenderer(base.BaseHandler):
@@ -110,9 +113,10 @@ class CrystalRenderer(base.BaseHandler):
         # Yes, there really isn't a better way. I'd be glad to be proven wrong.
         if self._pymdownx_hl:
             old = self._pymdownx_hl.highlight
-            new = lambda self, src="", language="", *args, **kwargs: old(
-                self, src, language or default_lang, *args, **kwargs
-            )
+
+            def new(self, src="", language="", *args, **kwargs):
+                return old(self, src, language or default_lang, *args, **kwargs)
+
             return _monkeypatch(self._pymdownx_hl, "highlight", new)
         return contextlib.nullcontext()
 
