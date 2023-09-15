@@ -11,5 +11,4 @@ hatch build
 git add mkdocstrings_handlers/crystal/__init__.py
 git commit -m "v$1"
 git tag -a -m "" "v$1"
-hatch publish
 git push origin master --tags
