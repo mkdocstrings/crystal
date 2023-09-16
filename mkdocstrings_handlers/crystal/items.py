@@ -4,13 +4,8 @@ import abc
 import collections
 import dataclasses
 import re
-import sys
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Generic, Iterator, Mapping, Sequence, TypeVar, overload
-
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from cached_property import cached_property
 
 from mkdocstrings.handlers.base import CollectionError
 
@@ -375,11 +370,9 @@ class DocMethod(DocItem):
         # https://github.com/crystal-lang/crystal/pull/10122
         loc = self.data.get("location")
         if loc is None:
-            url = self.data.get("source_link")
-            if url:
+            if url := self.data.get("source_link"):
                 regex = r"(?P<url>.+?/(?:blob|tree)/[^/]+/(?P<filename>.+)#L(?P<line>\d+))"
-                m = re.fullmatch(regex, url)
-                if m:
+                if m := re.fullmatch(regex, url):
                     loc = m.groupdict()
         if loc:
             return self.root.update_url(
