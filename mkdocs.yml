@@ -8,6 +8,7 @@ use_directory_urls: false
 theme:
   name: material
   features:
+    - content.action.edit
     - navigation.expand
   icon:
     repo: fontawesome/brands/github
@@ -41,11 +42,18 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.snippets:
       check_paths: true
+      base_path:
+        - !relative $config_dir
   - callouts
   - admonition
   - def_list
   - toc:
       permalink: "#"
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
 
 nav:
   - Introduction: README.md
