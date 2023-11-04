@@ -88,8 +88,6 @@ check = [
 skip-install = true
 dependencies = [
     "ruff",
-    "isort",
-    "black",
 ]
 [tool.hatch.envs.style.scripts]
 fix = [
@@ -97,8 +95,7 @@ fix = [
     "format",
 ]
 format = [
-    "isort -q mkdocstrings_handlers tests",
-    "black -q mkdocstrings_handlers tests",
+    "ruff format -q mkdocstrings_handlers tests",
 ]
 
 [tool.hatch.envs.docs]
@@ -113,15 +110,10 @@ dependencies = [
     "markdown-callouts >=0.2",
 ]
 
-[tool.black]
-line-length = 100
-
-[tool.isort]
-profile = "black"
-line_length = 100
-
 [tool.ruff]
+line-length = 100
 select = [
+    "I",
     "F", "W", "E", "UP", "YTT", "C4", "DTZ", "FA", "ISC", "PIE", "T20", "RSE", "TCH",
     "B002", "B003", "B005", "B007", "B009", "B012", "B013", "B014", "B015", "B018", "B020", "B021", "B023", "B026", "B033", "B034", "B905",
     "COM818",
@@ -138,7 +130,6 @@ allow-dict-calls-with-keyword-arguments = true
 
 [tool.mypy]
 warn_unreachable = true
-show_error_codes = true
 
 [tool.pytest.ini_options]
 addopts = "--tb=native"
