@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import xml.etree.ElementTree as etree
-from typing import TYPE_CHECKING, Any, Mapping, TypeVar
+from typing import TYPE_CHECKING, Any, Mapping, TypeVar, cast
 
 import jinja2
 import markdown_callouts
@@ -105,7 +105,9 @@ class CrystalRenderer(base.BaseHandler):
     def do_convert_markdown_ctx(
         self, text: str, context: DocItem, heading_level: int, html_id: str
     ):
-        self._md.treeprocessors["mkdocstrings_crystal_xref"].context = context
+        cast(
+            _RefInsertingTreeprocessor, self._md.treeprocessors["mkdocstrings_crystal_xref"]
+        ).context = context
         return super().do_convert_markdown(text, heading_level=heading_level, html_id=html_id)
 
     def _monkeypatch_highlight_function(self, default_lang: str):

@@ -115,8 +115,8 @@ class _SourceDestination:
         data = {"file": location.filename[len(self.src_path) :], "line": location.line}
         try:
             return self.dest_url.format_map(
-                collections.ChainMap(data, _DictAccess(self), _crystal_info)
-            )  # type: ignore
+                collections.ChainMap(data, _DictAccess(self), _crystal_info)  # type: ignore[arg-type]
+            )
         except KeyError as e:
             raise PluginError(
                 f"The source_locations template {self.dest_url!r} did not resolve correctly: {e}"
