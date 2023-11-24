@@ -54,6 +54,12 @@ path = "mkdocstrings_handlers/crystal/__init__.py"
 [tool.hatch.build.targets.sdist]
 include = ["/mkdocstrings_handlers", "/tests"]
 
+[tool.hatch.env]
+requires = [
+    "hatch-mkdocs",
+    "hatch-pip-compile",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["mkdocstrings_handlers"]
 
@@ -98,17 +104,10 @@ format = [
     "ruff format -q mkdocstrings_handlers tests",
 ]
 
+[tool.hatch.env.collectors.mkdocs.docs]
 [tool.hatch.envs.docs]
-detached = true
-dependencies = [
-    "mkdocs >=1.5",
-    "mkdocs-material >=7.1.4",
-    "mkdocs-section-index >=0.3.0",
-    "mkdocstrings >=0.15.0",
-    "mkdocstrings-python >=0.7.1",
-    "pymdown-extensions >=8.2",
-    "markdown-callouts >=0.2",
-]
+type = "pip-compile"
+pip-compile-hashes = false
 
 [tool.ruff]
 line-length = 100
