@@ -36,10 +36,11 @@ plugins:
             show_root_full_path: false
 
 markdown_extensions:
+  - pymdownx.details
   - pymdownx.highlight
   - pymdownx.magiclink
+  - pymdownx.saneheaders
   - pymdownx.superfences
-  - pymdownx.details
   - pymdownx.snippets:
       check_paths: true
       base_path:

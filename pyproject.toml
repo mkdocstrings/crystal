@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mkdocstrings-crystal"
-description = "Crystal language doc generator for mkdocstrings"
+description = "Crystal language doc generator for MkDocs, via mkdocstrings"
 readme = "README.md"
 license = "MIT"
 keywords = ["mkdocs", "mkdocstrings", "crystal", "mkdocs-plugin"]
