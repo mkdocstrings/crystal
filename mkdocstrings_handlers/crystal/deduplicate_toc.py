@@ -26,7 +26,7 @@ def _deduplicate_toc(toc: list[dict]) -> None:
 class _TocDeduplicatingTreeprocessor(Treeprocessor):
     def run(self, root: etree.Element):
         try:
-            toc = self.md.toc_tokens  # type: ignore
+            toc = self.md.toc_tokens  # type: ignore[attr-defined]
         except AttributeError:
             return
         _deduplicate_toc(toc)
@@ -39,4 +39,4 @@ class DeduplicateTocExtension(Extension):
         )
 
 
-makeExtension = DeduplicateTocExtension
+makeExtension = DeduplicateTocExtension  # noqa: N816

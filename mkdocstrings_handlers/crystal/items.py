@@ -2,10 +2,21 @@ from __future__ import annotations
 
 import abc
 import collections
+import contextlib
 import dataclasses
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Generic, Iterator, Mapping, Sequence, TypeVar, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Generic,
+    Iterator,
+    Mapping,
+    Sequence,
+    TypeVar,
+    overload,
+)
 
 from mkdocstrings.handlers.base import CollectionError
 
@@ -26,7 +37,7 @@ class DocItem(metaclass=abc.ABCMeta):
     def __init__(self, data: Mapping[str, Any], parent: DocItem | None, root: DocRoot | None):
         self.data = data
         self.parent = parent
-        self.root = root or self  # type: ignore
+        self.root = root or self  # type: ignore[assignment]
 
     @property
     def name(self) -> str:
@@ -105,10 +116,8 @@ class DocItem(metaclass=abc.ABCMeta):
                 raise CollectionError(f"{identifier!r} - can't find {name!r}")
             ret_obj = obj
             if isinstance(obj, DocAlias):
-                try:
+                with contextlib.suppress(CollectionError):
                     obj = self.lookup(str(obj.aliased))
-                except CollectionError:
-                    pass
         assert ret_obj is not None
         return ret_obj
 
@@ -362,7 +371,7 @@ class DocMethod(DocItem):
                 # https://github.com/crystal-lang/crystal/issues/12043
                 ret = self.data["def"].get("return_type", "")
                 return ret and " : " + ret
-        return crystal_html.parse_crystal_html(html)  # type: ignore
+        return crystal_html.parse_crystal_html(html)  # type: ignore[return-value]
 
     @cached_property
     def location(self) -> DocLocation | None:
@@ -420,11 +429,12 @@ class DocMapping(Generic[D]):
 
     items: Sequence = ()
     search: Mapping[str, Any] = {}
+    _empty: ClassVar[DocMapping]
 
     def __new__(cls, items: Sequence[D]) -> DocMapping:
         if not items:
             try:
-                empty = cls._empty  # type: ignore
+                empty = cls._empty
             except AttributeError:
                 cls._empty = empty = object.__new__(cls)
             return empty
@@ -469,7 +479,7 @@ class DocMapping(Generic[D]):
             return self
         new = object.__new__(type(self))
         new.items = [*self, *other] if self else other.items
-        new.search = collections.ChainMap(new.search, other.search)  # type: ignore
+        new.search = collections.ChainMap(new.search, other.search)  # type: ignore[arg-type]
         return new
 
     def __repr__(self):

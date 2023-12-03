@@ -22,7 +22,7 @@ class CrystalHandler(CrystalCollector, CrystalRenderer, BaseHandler):
         source_locations: Mapping[str, str] = {},
         **config: Any,
     ) -> None:
-        BaseHandler.__init__(self, "crystal", theme, custom_templates)  # type: ignore
+        BaseHandler.__init__(self, "crystal", theme, custom_templates)
         CrystalCollector.__init__(
             self, crystal_docs_flags=crystal_docs_flags, source_locations=source_locations
         )

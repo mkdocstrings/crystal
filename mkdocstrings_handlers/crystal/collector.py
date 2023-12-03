@@ -30,7 +30,7 @@ from .items import DocConstant, DocItem, DocLocation, DocMapping, DocMethod, Doc
 try:
     from mkdocs.exceptions import PluginError
 except ImportError:
-    PluginError = SystemExit  # type: ignore
+    PluginError = SystemExit  # type: ignore[assignment, misc]
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 

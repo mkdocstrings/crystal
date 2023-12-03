@@ -52,10 +52,8 @@ class CrystalRenderer(base.BaseHandler):
 
         self._pymdownx_hl = None
         for ext in md.registeredExtensions:
-            try:
-                self._pymdownx_hl = ext.get_pymdownx_highlighter()  # type: ignore
-            except AttributeError:
-                pass
+            with contextlib.suppress(AttributeError):
+                self._pymdownx_hl = ext.get_pymdownx_highlighter()  # type: ignore[attr-defined]
 
         # Disallow raw HTML.
         md.preprocessors.deregister("html_block")
