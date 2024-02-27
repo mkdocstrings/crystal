@@ -3,7 +3,7 @@ from __future__ import annotations
 import itertools
 import json
 import posixpath
-from typing import IO, Iterator, cast
+from typing import IO, Iterator
 
 from .items import DocModule
 
@@ -11,7 +11,7 @@ from .items import DocModule
 def read(file: IO) -> DocModule:
     data = json.load(file)
     data["program"]["full_name"] = ""
-    return cast(DocModule, DocModule(data["program"], None, None))
+    return DocModule(data["program"], None, None)
 
 
 def list_objects(obj) -> Iterator[tuple[str, str]]:

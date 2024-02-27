@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections
+import collections.abc
 import dataclasses
 import functools
 import logging
@@ -12,7 +13,6 @@ from functools import cached_property
 from typing import (
     TYPE_CHECKING,
     Any,
-    BinaryIO,
     Callable,
     Iterable,
     Iterator,
@@ -78,14 +78,17 @@ class CrystalCollector(BaseHandler):
         """The top-level namespace, represented as a fake module."""
         try:
             with self._proc:
-                module = inventory.read(cast(BinaryIO, self._proc.stdout))
+                stdout = self._proc.stdout
+                assert stdout is not None
+                module = inventory.read(stdout)
             module.__class__ = DocRoot
-            root = cast(DocRoot, module)
-            root.source_locations = self._source_locations
-            return root
+            assert isinstance(module, DocRoot)
+            module.source_locations = self._source_locations
+            return module
         finally:
             if self._proc.returncode:
-                cmd = " ".join(shlex.quote(arg) for arg in cast(Sequence[str], self._proc.args))
+                args = cast(Sequence[str], self._proc.args)
+                cmd = " ".join(shlex.quote(arg) for arg in args)
                 raise PluginError(f"Command `{cmd}` exited with status {self._proc.returncode}")
 
     def collect(self, identifier: str, config: Mapping[str, Any]) -> DocView:
@@ -207,7 +210,7 @@ class DocView:
             raise RuntimeError(e) from e
 
     def walk_types(self) -> Iterator[DocType]:
-        types = cast(DocMapping[DocType], self.types)
+        types: DocMapping[DocType] = self.types
         for typ in types:
             yield typ
             yield from typ.walk_types()
