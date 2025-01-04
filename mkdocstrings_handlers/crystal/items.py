@@ -124,7 +124,7 @@ _LOOKUP_ORDER = {
 }
 
 
-D = TypeVar("D", bound=DocItem)
+_D = TypeVar("_D", bound=DocItem)
 
 
 class DocType(DocItem):
@@ -415,14 +415,14 @@ class DocConstructor(DocClassMethod):
     """A [DocInstanceMethod][mkdocstrings_handlers.crystal.items.DocInstanceMethod] representing a Crystal macro."""
 
 
-class DocMapping(Generic[D]):
+class DocMapping(Generic[_D]):
     """Represents items contained within a type. A container of [DocItem][mkdocstrings_handlers.crystal.items.DocItem]s."""
 
     items: Sequence = ()
     search: Mapping[str, Any] = {}
     _empty: ClassVar[DocMapping]
 
-    def __new__(cls, items: Sequence[D]) -> Self:
+    def __new__(cls, items: Sequence[_D]) -> Self:
         if not items:
             empty: Self
             try:
@@ -432,7 +432,7 @@ class DocMapping(Generic[D]):
             return empty
         return object.__new__(cls)
 
-    def __init__(self, items: Sequence[D]):
+    def __init__(self, items: Sequence[_D]):
         self.items = items
         search: dict[str, Any] = {}
         self.search = search
@@ -440,7 +440,7 @@ class DocMapping(Generic[D]):
             search.setdefault(item.rel_id, item)
             search.setdefault(item.name, item)
 
-    def __iter__(self) -> Iterator[D]:
+    def __iter__(self) -> Iterator[_D]:
         """Iterate over the items like a list."""
         return iter(self.items)
 
@@ -456,7 +456,7 @@ class DocMapping(Generic[D]):
         """`"identifier" in mapping` to check whether the mapping contains an item by this identifier (see [DocItem.rel_id][mkdocstrings_handlers.crystal.items.DocItem.rel_id])."""
         return key in self.search
 
-    def __getitem__(self, key: str) -> D:
+    def __getitem__(self, key: str) -> _D:
         """`mapping["identifier"]` to get the item by this identifier (see [DocItem.rel_id][mkdocstrings_handlers.crystal.items.DocItem.rel_id]).
 
         Returns:

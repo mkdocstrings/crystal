@@ -3,7 +3,7 @@ from __future__ import annotations
 import contextlib
 import xml.etree.ElementTree as etree
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 import jinja2
 import markdown_callouts
@@ -17,8 +17,6 @@ if TYPE_CHECKING:
     from markdown import Markdown
 
     from .items import DocItem, DocPath
-
-    T = TypeVar("T")
 
 
 class CrystalRenderer(base.BaseHandler):

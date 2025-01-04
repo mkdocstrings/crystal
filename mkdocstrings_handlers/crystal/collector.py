@@ -26,7 +26,7 @@ except ImportError:
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
 if TYPE_CHECKING:
-    D = TypeVar("D", bound=DocItem)
+    _D = TypeVar("_D", bound=DocItem)
 
 
 class CrystalCollector(BaseHandler):
@@ -226,9 +226,9 @@ class DocView:
     def _filter(
         cls,
         filters: Sequence[str] | bool,  # noqa: FBT001
-        mapp: DocMapping[D],
-        getter: Callable[[D], Sequence[str]],
-    ) -> DocMapping[D]:
+        mapp: DocMapping[_D],
+        getter: Callable[[_D], Sequence[str]],
+    ) -> DocMapping[_D]:
         if filters is False:
             return DocMapping(())
         if filters is True:

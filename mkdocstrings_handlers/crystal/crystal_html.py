@@ -4,11 +4,12 @@ import collections
 import html.parser
 import io
 from collections.abc import Iterable, Sequence
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from markupsafe import Markup, escape
 
-LinkToken = tuple[int, int, str]
+if TYPE_CHECKING:
+    _LinkToken = tuple[int, int, str]
 
 
 class TextWithLinks(collections.UserString):
@@ -19,10 +20,10 @@ class TextWithLinks(collections.UserString):
     The link information is currently for internal use only.
     """
 
-    tokens: Sequence[LinkToken]
+    tokens: Sequence[_LinkToken]
     """The list of embedded links."""
 
-    def __init__(self, string, tokens: Sequence[LinkToken]):
+    def __init__(self, string, tokens: Sequence[_LinkToken]):
         super().__init__(string)
         self.tokens = tokens
 
@@ -37,7 +38,7 @@ def parse_crystal_html(crystal_html: str) -> TextWithLinks:
 
 
 def linkify_highlighted_html(
-    pygments_html: str, html_tokens: Sequence[LinkToken], make_link: Callable[[str, str], str]
+    pygments_html: str, html_tokens: Sequence[_LinkToken], make_link: Callable[[str, str], str]
 ) -> str:
     pygments_parser = _PygmentsHTMLHandler(html_tokens, make_link)
     pygments_parser.feed(pygments_html)
@@ -48,7 +49,7 @@ class _CrystalHTMLHandler(html.parser.HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.text = io.StringIO()
-        self.tokens: list[LinkToken] = []
+        self.tokens: list[_LinkToken] = []
         self._link_starts: list[tuple[int, str]] = []
 
     def handle_starttag(self, tag, attrs):
@@ -73,7 +74,7 @@ class _CrystalHTMLHandler(html.parser.HTMLParser):
 
 
 class _PygmentsHTMLHandler(html.parser.HTMLParser):
-    def __init__(self, tokens: Iterable[LinkToken], make_link: Callable[[str, str], str]):
+    def __init__(self, tokens: Iterable[_LinkToken], make_link: Callable[[str, str], str]):
         super().__init__()
         self.tokens = iter(tokens)
         self.make_link = make_link
