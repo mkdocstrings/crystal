@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import contextlib
 import xml.etree.ElementTree as etree
-from typing import TYPE_CHECKING, Any, Mapping, TypeVar
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import jinja2
 import markdown_callouts
@@ -43,7 +44,8 @@ class CrystalRenderer(base.BaseHandler):
                 root=True,
             )
 
-    def get_anchors(self, data: DocItem) -> tuple[str, ...]:
+    @classmethod
+    def get_anchors(cls, data: DocItem) -> tuple[str, ...]:
         return (data.abs_id,)
 
     def update_env(self, md: Markdown, config: dict) -> None:
@@ -97,8 +99,9 @@ class CrystalRenderer(base.BaseHandler):
         except base.CollectionError:
             return text
         else:
-            html = '<span data-autorefs-optional="{}">{}</span>'
-            return Markup(html).format(ref_obj.abs_id, text)
+            return Markup('<span data-autorefs-optional="{}">{}</span>').format(
+                ref_obj.abs_id, text
+            )
 
     def do_convert_markdown_ctx(
         self, text: str, context: DocItem, heading_level: int, html_id: str

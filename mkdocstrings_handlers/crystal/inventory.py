@@ -3,7 +3,8 @@ from __future__ import annotations
 import itertools
 import json
 import posixpath
-from typing import IO, Iterator
+from collections.abc import Iterator
+from typing import IO
 
 from .items import DocModule
 

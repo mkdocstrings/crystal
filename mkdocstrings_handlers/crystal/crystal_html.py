@@ -3,11 +3,12 @@ from __future__ import annotations
 import collections
 import html.parser
 import io
-from typing import Callable, Iterable, Sequence, Tuple
+from collections.abc import Iterable, Sequence
+from typing import Callable
 
 from markupsafe import Markup, escape
 
-LinkToken = Tuple[int, int, str]
+LinkToken = tuple[int, int, str]
 
 
 class TextWithLinks(collections.UserString):
@@ -40,7 +41,7 @@ def linkify_highlighted_html(
 ) -> str:
     pygments_parser = _PygmentsHTMLHandler(html_tokens, make_link)
     pygments_parser.feed(pygments_html)
-    return Markup(pygments_parser.html.getvalue())
+    return Markup(pygments_parser.html.getvalue())  # noqa: RUF035
 
 
 class _CrystalHTMLHandler(html.parser.HTMLParser):
@@ -65,8 +66,7 @@ class _CrystalHTMLHandler(html.parser.HTMLParser):
 
     @classmethod
     def link_to_path(cls, href):
-        if href.endswith(".html"):
-            href = href[:-5]
+        href = href.removesuffix(".html")
         while href.startswith("../"):
             href = href[3:]
         return href.replace("/", "::")
@@ -99,7 +99,7 @@ class _PygmentsHTMLHandler(html.parser.HTMLParser):
         if tag == "span" and self.inlink is not None:
             if self.token and self.token[1] <= self.pos:
                 self.html.seek(self.inlink)
-                subhtml = Markup(self.html.read())
+                subhtml = Markup(self.html.read())  # noqa: RUF035
                 subhtml = self.make_link(self.token[2], subhtml)
                 self.token = next(self.tokens, None)
 

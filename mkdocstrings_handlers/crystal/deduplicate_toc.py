@@ -33,7 +33,8 @@ class _TocDeduplicatingTreeprocessor(Treeprocessor):
 
 
 class DeduplicateTocExtension(Extension):
-    def extendMarkdown(self, md: Markdown) -> None:
+    @classmethod
+    def extendMarkdown(cls, md: Markdown) -> None:
         md.treeprocessors.register(
             _TocDeduplicatingTreeprocessor(md), "mkdocstrings_crystal_deduplicate_toc", 4
         )

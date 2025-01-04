@@ -9,18 +9,9 @@ import os
 import re
 import shlex
 import subprocess
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from functools import cached_property
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    Mapping,
-    Sequence,
-    TypeVar,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
 
 from mkdocstrings.handlers.base import BaseHandler, CollectionError
 
@@ -87,7 +78,7 @@ class CrystalCollector(BaseHandler):
             return module
         finally:
             if self._proc.returncode:
-                args = cast(Sequence[str], self._proc.args)
+                args = cast("Sequence[str]", self._proc.args)
                 cmd = " ".join(shlex.quote(arg) for arg in args)
                 raise PluginError(f"Command `{cmd}` exited with status {self._proc.returncode}")
 
@@ -130,7 +121,7 @@ class _SourceDestination:
         return self._shard_version(os.path.dirname(self.src_path))
 
     @classmethod
-    @functools.lru_cache(maxsize=None)
+    @functools.cache
     def _shard_version(cls, path: str) -> str:
         file_path = _find_above(path, "shard.yml")
         with open(file_path, "rb") as f:
@@ -234,7 +225,7 @@ class DocView:
     @classmethod
     def _filter(
         cls,
-        filters: bool | Sequence[str],
+        filters: Sequence[str] | bool,  # noqa: FBT001
         mapp: DocMapping[D],
         getter: Callable[[D], Sequence[str]],
     ) -> DocMapping[D]:

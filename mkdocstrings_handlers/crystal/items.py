@@ -5,28 +5,21 @@ import collections
 import contextlib
 import dataclasses
 import re
+from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    ClassVar,
-    Generic,
-    Iterator,
-    Mapping,
-    Sequence,
-    TypeVar,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar, overload
 
 from mkdocstrings.handlers.base import CollectionError
 
 from . import crystal_html
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from .collector import DocRoot
 
 
-class DocItem(metaclass=abc.ABCMeta):
+class DocItem(abc.ABC):
     """A representation of a documentable item from Crystal language."""
 
     _TEMPLATE: str
@@ -140,18 +133,16 @@ class DocType(DocItem):
     _TEMPLATE = "type.html"
 
     @overload
-    def __new__(cls: type[DocType], data: Mapping[str, Any], *args, **kwargs) -> DocType:
-        ...
+    def __new__(cls, data: Mapping[str, Any], *args, **kwargs) -> Self: ...
 
     @overload
-    def __new__(cls, data: Mapping[str, Any] | None = None, *args, **kwargs) -> DocType:
-        ...
+    def __new__(cls, data: Mapping[str, Any] | None = None, *args, **kwargs) -> Self: ...
 
-    def __new__(cls, data=None, *args, **kwargs) -> DocType:
+    def __new__(cls, data=None, *args, **kwargs) -> Self:
         """Based on Crystal's JSON, create an object of an appropriate subclass of DocType"""
         if cls is DocType:
             try:
-                cls = _doc_type_mapping[data["kind"]]
+                cls = _doc_type_mapping[data["kind"]]  # type: ignore[assignment]
             except KeyError:
                 raise TypeError(
                     "DocType is abstract, and {kind!r} is not recognized".format_map(data)
@@ -431,10 +422,11 @@ class DocMapping(Generic[D]):
     search: Mapping[str, Any] = {}
     _empty: ClassVar[DocMapping]
 
-    def __new__(cls, items: Sequence[D]) -> DocMapping:
+    def __new__(cls, items: Sequence[D]) -> Self:
         if not items:
+            empty: Self
             try:
-                empty = cls._empty
+                empty = cls._empty  # type: ignore[assignment]
             except AttributeError:
                 cls._empty = empty = object.__new__(cls)
             return empty
