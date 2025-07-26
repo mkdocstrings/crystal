@@ -53,7 +53,9 @@ class CrystalRenderer(BaseHandler):
         self.md.preprocessors.deregister("html_block")
         self.md.inlinePatterns.deregister("html")
 
-        self.md.treeprocessors.register(_RefInsertingTreeprocessor(self.md), "mkdocstrings_crystal_xref", 12)
+        self.md.treeprocessors.register(
+            _RefInsertingTreeprocessor(self.md), "mkdocstrings_crystal_xref", 12
+        )
         markdown_callouts.CalloutsExtension().extendMarkdown(self.md)
 
         self.env.trim_blocks = True
