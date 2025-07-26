@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from mkdocstrings.handlers.base import BaseHandler
+from mkdocstrings import BaseHandler
 
 from . import inventory
 from .collector import CrystalCollector

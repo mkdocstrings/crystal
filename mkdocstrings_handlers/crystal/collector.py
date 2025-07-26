@@ -13,7 +13,7 @@ from collections.abc import Iterable, Iterator, Mapping, Sequence
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
 
-from mkdocstrings.handlers.base import BaseHandler, CollectionError
+from mkdocstrings import BaseHandler, CollectionError
 
 from . import inventory
 from .items import DocConstant, DocItem, DocLocation, DocMapping, DocMethod, DocModule, DocType

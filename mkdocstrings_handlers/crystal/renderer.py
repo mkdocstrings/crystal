@@ -2,35 +2,32 @@ from __future__ import annotations
 
 import contextlib
 import xml.etree.ElementTree as etree
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import jinja2
 import markdown_callouts
 from markdown.treeprocessors import Treeprocessor
 from markupsafe import Markup
-from mkdocstrings.handlers import base
+from mkdocstrings import BaseHandler, CollectionError, HandlerOptions
 
 from . import crystal_html
 
 if TYPE_CHECKING:
-    from markdown import Markdown
-
     from .items import DocItem, DocPath
 
 
-class CrystalRenderer(base.BaseHandler):
+class CrystalRenderer(BaseHandler):
     fallback_theme = "material"
 
     @property
     def collector(self):
         return self
 
-    def render(self, data: DocItem, config: Mapping[str, Any]) -> str:
+    def render(self, data: DocItem, options: HandlerOptions, *, locale: str | None = None) -> str:
         subconfig = {
             "show_source_links": True,
             "heading_level": 2,
-            **config,
+            **options,
         }
         template = self.env.get_template(data._TEMPLATE)
 
@@ -46,21 +43,18 @@ class CrystalRenderer(base.BaseHandler):
     def get_anchors(cls, data: DocItem) -> tuple[str, ...]:
         return (data.abs_id,)
 
-    def update_env(self, md: Markdown, config: dict) -> None:
-        super().update_env(md, config)
-        self._md = md
-
+    def update_env(self, config: dict) -> None:
         self._pymdownx_hl = None
-        for ext in md.registeredExtensions:
+        for ext in self.md.registeredExtensions:
             with contextlib.suppress(AttributeError):
                 self._pymdownx_hl = ext.get_pymdownx_highlighter()  # type: ignore[attr-defined]
 
         # Disallow raw HTML.
-        md.preprocessors.deregister("html_block")
-        md.inlinePatterns.deregister("html")
+        self.md.preprocessors.deregister("html_block")
+        self.md.inlinePatterns.deregister("html")
 
-        md.treeprocessors.register(_RefInsertingTreeprocessor(md), "mkdocstrings_crystal_xref", 12)
-        markdown_callouts.CalloutsExtension().extendMarkdown(md)
+        self.md.treeprocessors.register(_RefInsertingTreeprocessor(self.md), "mkdocstrings_crystal_xref", 12)
+        markdown_callouts.CalloutsExtension().extendMarkdown(self.md)
 
         self.env.trim_blocks = True
         self.env.lstrip_blocks = True
@@ -94,7 +88,7 @@ class CrystalRenderer(base.BaseHandler):
             return text
         try:
             ref_obj = self.collector.root.lookup(path)
-        except base.CollectionError:
+        except CollectionError:
             return text
         else:
             return Markup('<span data-autorefs-optional="{}">{}</span>').format(
@@ -104,7 +98,7 @@ class CrystalRenderer(base.BaseHandler):
     def do_convert_markdown_ctx(
         self, text: str, context: DocItem, heading_level: int, html_id: str
     ):
-        p: _RefInsertingTreeprocessor = self._md.treeprocessors["mkdocstrings_crystal_xref"]  # type: ignore[assignment]
+        p: _RefInsertingTreeprocessor = self.md.treeprocessors["mkdocstrings_crystal_xref"]  # type: ignore[assignment]
         p.context = context
         return super().do_convert_markdown(text, heading_level=heading_level, html_id=html_id)
 
@@ -147,7 +141,7 @@ class _RefInsertingTreeprocessor(Treeprocessor):
             assert self.context, "Bug: `CrystalRenderer` should have set the `context` member"
             try:
                 ref_obj = self.context.lookup("".join(el.itertext()))
-            except base.CollectionError:
+            except CollectionError:
                 continue
 
             # Replace the `code` with a new `span` (need to propagate the tail too).

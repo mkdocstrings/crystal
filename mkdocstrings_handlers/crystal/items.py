@@ -9,7 +9,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar, overload
 
-from mkdocstrings.handlers.base import CollectionError
+from mkdocstrings import CollectionError
 
 from . import crystal_html
 
