@@ -19,15 +19,18 @@ class CrystalHandler(CrystalCollector, CrystalRenderer, BaseHandler):
 
     def __init__(
         self,
+        *,
         theme: str,
         custom_templates: str | None = None,
-        crystal_docs_flags: Sequence[str] = (),
-        source_locations: Mapping[str, str] = {},
-        **config: Any,
+        config: Mapping[str, Any] | None = None,
+        **kwargs: Any,
     ) -> None:
-        BaseHandler.__init__(self, "crystal", theme, custom_templates)
+        config = config or {}
+        BaseHandler.__init__(self, theme=theme, custom_templates=custom_templates, **kwargs)
         CrystalCollector.__init__(
-            self, crystal_docs_flags=crystal_docs_flags, source_locations=source_locations
+            self,
+            crystal_docs_flags=config.get("crystal_docs_flags", ()),
+            source_locations=config.get("source_locations", {}),
         )
 
     def get_options(self, local_options: Mapping[str, Any]) -> HandlerOptions:
