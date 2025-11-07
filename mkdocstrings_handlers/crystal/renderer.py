@@ -24,24 +24,22 @@ class CrystalRenderer(BaseHandler):
         return self
 
     def render(self, data: DocItem, options: HandlerOptions, *, locale: str | None = None) -> str:
-        subconfig = {
-            "show_source_links": True,
-            "heading_level": 2,
-            **options,
-        }
         template = self.env.get_template(data._TEMPLATE)
 
         with self._monkeypatch_highlight_function(default_lang="crystal"):
             return template.render(
-                config=subconfig,
+                config=options,
                 obj=data,
-                heading_level=subconfig["heading_level"],
+                heading_level=options["heading_level"],
                 root=True,
             )
 
-    @classmethod
-    def get_anchors(cls, data: DocItem) -> tuple[str, ...]:
-        return (data.abs_id,)
+    def get_aliases(self, identifier: str) -> tuple[str, ...]:
+        try:
+            data = self.collector.root.lookup(identifier)
+            return (data.abs_id,)
+        except CollectionError:
+            return (identifier,)
 
     def update_env(self, config: dict) -> None:
         self._pymdownx_hl = None
