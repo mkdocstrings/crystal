@@ -13,7 +13,7 @@ from collections.abc import Iterable, Iterator, Mapping, Sequence
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
 
-from mkdocstrings import BaseHandler, CollectionError
+from mkdocstrings import BaseHandler, CollectionError, HandlerOptions
 
 from . import inventory
 from .items import DocConstant, DocItem, DocLocation, DocMapping, DocMethod, DocModule, DocType
@@ -82,22 +82,16 @@ class CrystalCollector(BaseHandler):
                 cmd = " ".join(shlex.quote(arg) for arg in args)
                 raise PluginError(f"Command `{cmd}` exited with status {self._proc.returncode}")
 
-    def collect(self, identifier: str, config: Mapping[str, Any]) -> DocView:
+    def collect(self, identifier: str, options: HandlerOptions) -> DocView:
         """[Find][mkdocstrings_handlers.crystal.items.DocItem.lookup] an item by its identifier.
 
         Raises:
             CollectionError: When an item by that identifier couldn't be found.
         """
-        config = {
-            "nested_types": False,
-            "file_filters": True,
-            **config,
-        }
-
         item: DocItem = self.root
         if identifier != "::":
             item = item.lookup(identifier)
-        return DocView(item, config)
+        return DocView(item, options)
 
 
 @dataclasses.dataclass

@@ -59,7 +59,7 @@ include = ["/mkdocstrings_handlers", "/tests"]
 [tool.hatch.env]
 requires = [
     "hatch-mkdocs",
-    "hatch-pip-compile >=1.7.0",
+    "hatch-pip-compile >=1.11.2",
 ]
 
 [tool.hatch.build.targets.wheel]
