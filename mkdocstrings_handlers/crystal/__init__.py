@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping, Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from markdown import Extension
-from mkdocs.config.defaults import MkDocsConfig
 from mkdocstrings import BaseHandler, HandlerOptions
 
 from . import inventory
 from .collector import CrystalCollector
 from .renderer import CrystalRenderer
+
+if TYPE_CHECKING:
+    from markdown import Extension
+    from mkdocs.config.defaults import MkDocsConfig
 
 __version__ = "0.3.9"
 
