@@ -14,6 +14,7 @@ jobs:
           python-version: '3.12'
       - name: Install Hatch
         run: |
+          pip install 'pip==25.2'
           pip install hatch
       - name: Install dependencies
         run: |

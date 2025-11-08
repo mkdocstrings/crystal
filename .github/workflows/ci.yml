@@ -42,6 +42,7 @@ jobs:
           sed -i -E 's/#min //; s/\b >=([0-9])/ ==\1/' pyproject.toml
       - name: Install Hatch
         run: |
+          pip install 'pip==25.2'
           pip install hatch
       - name: Install dependencies
         run: |
@@ -60,6 +61,7 @@ jobs:
           python-version: '3.12'
       - name: Install Hatch
         run: |
+          pip install 'pip==25.2'
           pip install hatch
       - name: Install dependencies
         run: |
